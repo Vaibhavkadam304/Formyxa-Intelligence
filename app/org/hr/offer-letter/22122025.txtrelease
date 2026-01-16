@@ -1,0 +1,136 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Header from "@/components/header";
+import Footer from "@/components/footer";
+
+type DesignKey = "modern_blue" | "minimal_plain" | "classic_border" | "fresh_green";
+
+const DESIGNS: { key: DesignKey; label: string; description?: string }[] = [
+  { key: "modern_blue", label: "Modern blue header" },
+  { key: "minimal_plain", label: "Minimal plain" },
+  { key: "classic_border", label: "Classic border" },
+  { key: "fresh_green", label: "Fresh green wave" },
+];
+
+export default function HROfferWorkspacePage() {
+  const router = useRouter();
+  const [activeDoc, setActiveDoc] = useState<string>("offer-letter");
+  const [preset, setPreset] = useState<string>("corporate"); // startup | corporate | custom
+  const [selectedDesign, setSelectedDesign] = useState<DesignKey | null>(null);
+
+  const goToQAWizard = (design: string | null) => {
+    const params = new URLSearchParams({
+        template: "offer-letter-standard",
+        preset, // 👈 SEND PRESET
+    });
+
+    if (design) {
+        params.set("design", design);
+    }
+
+    router.push(`/new?${params.toString()}`);
+    };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+
+      <main className="max-w-7xl mx-auto py-12 px-4">
+        <div className="flex gap-8">
+          {/* Sidebar */}
+          <aside className="w-56 border rounded-lg p-4 bg-white">
+            <h3 className="text-sm font-semibold mb-3">HR & People Operations</h3>
+            <nav className="space-y-2">
+              <button
+                className={`w-full text-left p-2 rounded ${activeDoc === "offer-letter" ? "bg-indigo-50 border-l-2 border-indigo-400" : "hover:bg-gray-50"}`}
+                onClick={() => setActiveDoc("offer-letter")}
+              >
+                Offer letter
+              </button>
+              <button
+                className={`w-full text-left p-2 rounded ${activeDoc === "appointment-letter" ? "bg-indigo-50 border-l-2 border-indigo-400" : "hover:bg-gray-50"}`}
+                onClick={() => setActiveDoc("appointment-letter")}
+              >
+                Appointment letter
+              </button>
+              <button
+                className={`w-full text-left p-2 rounded ${activeDoc === "resignation-letter" ? "bg-indigo-50 border-l-2 border-indigo-400" : "hover:bg-gray-50"}`}
+                onClick={() => setActiveDoc("resignation-letter")}
+              >
+                Resignation letter
+              </button>
+              {/* add more items as needed */}
+            </nav>
+          </aside>
+
+          {/* Main content */}
+          <section className="flex-1 bg-white rounded-lg p-6 border">
+            {/* Breadcrumb / header */}
+            <div className="mb-4">
+              <div className="text-xs text-muted-foreground">HR & People Operations</div>
+              <h2 className="text-xl font-semibold mt-1">Offer letter</h2>
+              <p className="text-sm text-muted-foreground mt-1">Choose content preset and an official design for your company offer letter.</p>
+            </div>
+
+            {/* Presets */}
+            <div className="mb-6">
+              <div className="flex gap-3">
+                <button className={`px-4 py-2 rounded border ${preset === "startup" ? "bg-indigo-50" : ""}`} onClick={() => setPreset("startup")}>Startup</button>
+                <button className={`px-4 py-2 rounded border ${preset === "corporate" ? "bg-indigo-50" : ""}`} onClick={() => setPreset("corporate")}>Corporate</button>
+                <button className={`px-4 py-2 rounded border ${preset === "custom" ? "bg-indigo-50" : ""}`} onClick={() => setPreset("custom")}>Custom / Legacy</button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">Preset controls tone / structure (not visual design).</p>
+            </div>
+
+            <div className="grid grid-cols-3 gap-6">
+              {/* Design selector */}
+              <div className="col-span-2">
+                <h3 className="text-sm font-semibold mb-3">Choose official design</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {DESIGNS.map((d) => (
+                    <div key={d.key} className={`border rounded p-3 cursor-pointer ${selectedDesign === d.key ? "ring-2 ring-indigo-300" : "hover:shadow-sm"}`} onClick={() => setSelectedDesign(d.key)}>
+                      <div className="text-sm font-medium">{d.label}</div>
+                      <div className="text-xs text-muted-foreground mt-1">{d.description ?? ""}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-6">
+                  <button
+                    className="px-4 py-2 bg-indigo-600 text-white rounded disabled:opacity-60"
+                    disabled={!selectedDesign}
+                    onClick={() => goToQAWizard(selectedDesign)}
+                  >
+                    Use this design
+                  </button>
+                  <div className="text-xs text-muted-foreground mt-2">You’ll configure candidate details next (Q&A).</div>
+                </div>
+              </div>
+
+              {/* Live preview */}
+              <div className="col-span-1 border rounded p-4">
+                <div className="text-xs text-muted-foreground mb-2">Live preview</div>
+                <div className="h-[420px] bg-gray-50 rounded p-4 overflow-auto">
+                  {/* Placeholder preview — later wire to real preview component */}
+                  <div className="text-sm font-semibold">{preset === "corporate" ? "Corporate Offer Letter (Preview)" : `${preset} preview`}</div>
+                  <div className="mt-4 text-xs text-muted-foreground">Design: {selectedDesign ?? "Not selected"}</div>
+                  <div className="mt-3 p-3 border rounded bg-white text-xs">
+                    <p><strong>Company</strong></p>
+                    <p>Candidate name: [Candidate name]</p>
+                    <p>Role: [Job title]</p>
+                    <p>CTC: [Salary]</p>
+                    <p>Start date: [Date]</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
+}

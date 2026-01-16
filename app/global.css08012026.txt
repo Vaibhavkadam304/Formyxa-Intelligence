@@ -1,0 +1,504 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* ===== Formyxa Light Theme – Blue-Purple SaaS ===== */
+
+  /* Base surfaces & text */
+  --background: #f5f7ff;           /* very light lavender */
+  --foreground: #020617;           /* near-black (slate-950-ish) */
+
+  --card: #ffffff;
+  --card-foreground: #020617;
+
+  --popover: #ffffff;
+  --popover-foreground: #020617;
+
+  /* Primary = indigo (buttons, key actions, highlights) */
+  --primary: #635bff;              /* main brand indigo */
+  --primary-foreground: #ffffff;
+
+  /* Secondary = soft lavender (chips, subtle CTAs) */
+  --secondary: #e0e7ff;
+  --secondary-foreground: #111827;
+
+  /* Muted / subtle panels, borders, descriptions */
+  --muted: #eef2ff;
+  --muted-foreground: #4b5563;
+
+  /* Accent (small highlights, pills) */
+  --accent: #e0e7ff;
+  --accent-foreground: #111827;
+
+  /* Status */
+  --destructive: #f97373;
+  --destructive-foreground: #ffffff;
+
+  /* Borders / inputs / rings */
+  --border: #c7d2fe;               /* soft indigo border */
+  --input: #f9fafb;
+  --ring: #4338ca;                 /* deeper violet ring */
+
+  /* Charts (on-brand indigo/violet variants) */
+  --chart-1: #6366f1;
+  --chart-2: #4338ca;
+  --chart-3: #818cf8;
+  --chart-4: #a855f7;
+  --chart-5: #4f46e5;
+
+  /* Radius */
+  --radius: 0.75rem;
+
+  /* Sidebar (editor / docs layout) */
+  --sidebar: #020617;              /* very dark navy */
+  --sidebar-foreground: #e5e7ff;   /* light lavender text */
+  --sidebar-primary: #635bff;      /* active item */
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #0b1220;       /* hover / subtle highlight */
+  --sidebar-accent-foreground: #e5e7ff;
+  --sidebar-border: #111827;
+  --sidebar-ring: #818cf8;
+}
+
+.dark {
+  /* ===== Formyxa Dark Theme – Indigo Night ===== */
+
+  --background: #020617;           /* slate/indigo near-black */
+  --foreground: #e5e7ff;
+
+  --card: #020617;
+  --card-foreground: #e5e7ff;
+
+  --popover: #020617;
+  --popover-foreground: #e5e7ff;
+
+  /* brighter indigo in dark mode for contrast */
+  --primary: #818cf8;
+  --primary-foreground: #020617;
+
+  --secondary: #111827;
+  --secondary-foreground: #e5e7ff;
+
+  --muted: #020617;
+  --muted-foreground: #9ca3af;
+
+  --accent: #111827;
+  --accent-foreground: #e5e7ff;
+
+  --destructive: #f97373;
+  --destructive-foreground: #1a0b0b;
+
+  --border: #1e293b;
+  --input: #020617;
+  --ring: #818cf8;
+
+  --chart-1: #a5b4fc;
+  --chart-2: #818cf8;
+  --chart-3: #c4b5fd;
+  --chart-4: #4f46e5;
+  --chart-5: #6366f1;
+
+  --radius: 0.75rem;
+
+  --sidebar: #020617;
+  --sidebar-foreground: #e5e7ff;
+  --sidebar-primary: #818cf8;
+  --sidebar-primary-foreground: #020617;
+  --sidebar-accent: #0b1120;
+  --sidebar-accent-foreground: #e5e7ff;
+  --sidebar-border: #1f2933;
+  --sidebar-ring: #818cf8;
+}
+
+/* ===== Editor / TipTap styles (unchanged) ===== */
+
+.tiptap {
+  outline: none;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Base spacing for ALL templates */
+.tiptap .ProseMirror {
+  outline: none;
+  line-height: 1.6;
+}
+
+.tiptap .ProseMirror p {
+  margin: 0.65rem 0;   /* default readable spacing */
+}
+
+.tiptap .ProseMirror ul,
+.tiptap .ProseMirror ol {
+  margin: 0.6rem 0 0.8rem 1.5rem;
+  padding: 0;
+}
+
+.tiptap .ProseMirror li {
+  margin: 0.2rem 0;
+}
+/* Tight spacing only for quick email templates */
+/* Tight spacing only for this quick email template */
+/* Tight spacing only for quick email template (matches DOM class) */
+.tiptap--website-proposal-quick-email .ProseMirror p {
+  margin: 0.3rem 0;
+}
+
+.tiptap--website-proposal-quick-email .ProseMirror ul,
+.tiptap--website-proposal-quick-email .ProseMirror ol {
+  margin: 0.35rem 0 0.6rem 1.5rem;
+}
+
+.tiptap--website-proposal-quick-email .ProseMirror li {
+  margin: 0.15rem 0;
+}
+
+.tiptap h1 {
+  margin: 8px 0 4px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.tiptap h2 {
+  margin: 6px 0 2px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.tiptap h3 {
+  margin: 4px 0 2px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.tiptap h1,
+.tiptap h2,
+.tiptap h3,
+.tiptap p.center {
+  text-align: center;
+}
+
+.tiptap ul,
+.tiptap ol {
+  margin: 4px 0 4px 1.25rem;
+  padding: 0;
+}
+
+.tiptap li {
+  margin: 1px 0;
+}
+
+
+.tiptap ul {
+  list-style-type: disc;
+  list-style-position: outside;
+  margin-left: 1.5rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.tiptap ol {
+  list-style-type: decimal;
+  list-style-position: outside;
+  margin-left: 1.5rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Base defaults for your TipTap editor */
+.tiptap {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 11pt;
+  line-height: 1.6;
+  color: rgb(15 23 42); /* slate-900-ish */
+}
+
+.tiptap img {
+  display: inline-block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Keep headings readable while base is 11pt */
+.tiptap h1 { 
+font-size: 16pt;
+ margin-bottom: 1.5rem; 
+}
+.tiptap h2 { font-size: 14pt; }
+
+/* ===========================================
+   Blog editor specific styles (Medium-like)
+   Uses .tiptap + .tiptap-blog to avoid
+   touching JsonEditor
+   =========================================== */
+
+.tiptap-blog {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "SF Pro Text",
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 14.5px;
+  line-height: 1.8;
+  color: rgb(15 23 42);
+}
+
+/* Paragraph spacing – nice "one line gap" */
+.tiptap-blog p {
+  margin: 0 0 1.25em;
+}
+
+/* Headings for blog – left aligned, premium feel */
+.tiptap-blog h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 0.85em;
+  text-align: left;
+}
+
+.tiptap-blog h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1.75em 0 0.75em;
+  text-align: left;
+}
+
+/* Lists inside blog body */
+.tiptap-blog ul,
+.tiptap-blog ol {
+  margin: 0 0 1.25em 1.4rem;
+  padding: 0;
+}
+
+.tiptap-blog li {
+  margin: 0.25em 0;
+}
+
+.editor-content {
+  font-family: "Times New Roman", Georgia, "Times", serif;
+  font-size: 12pt;
+  line-height: 1.25;
+}
+
+.editor-content p {
+  margin-top: 0;
+  margin-bottom: 6pt;
+}
+
+.editor-content h1 {
+  font-size: 18pt;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 12pt;
+}
+
+.editor-content h2 {
+  font-size: 14pt;
+  font-style: italic;
+  text-align: center;
+  margin: 8pt 0 4pt;
+}
+
+.editor-content p.center,
+.editor-content .center {
+  text-align: center;
+}
+
+
+/* Hide scrollbars but keep scroll behaviour */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;    /* Firefox */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;            /* Chrome, Safari, Opera */
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;  /* IE/Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+/*  */
+.legal-doc {
+  font-family: "Times New Roman", serif;
+  font-size: 13px;
+  line-height: 1.4;
+  max-width: 794px; /* ~A4 width */
+  margin: 0 auto;
+}
+
+.legal-doc .doc-title {
+  text-align: center;
+  font-size: 18px;
+  text-decoration: underline;
+  margin-bottom: 16px;
+}
+
+.legal-doc h2 {
+  font-size: 14px;
+  margin-top: 14px;
+  margin-bottom: 4px;
+}
+
+.legal-doc p {
+  margin: 4px 0;
+  text-align: justify;
+}
+
+.legal-doc .sign-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem;
+  margin-top: 24px;
+}
+
+.legal-doc .sign-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.legal-doc .sign-line {
+  margin-top: 16px;
+}
+
+.tiptap p:hover,
+.tiptap h1:hover,
+.tiptap h2:hover,
+.tiptap h3:hover {
+  background-color: rgba(37, 99, 235, 0.04);
+}
+
+
+.tiptap table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  max-width: 100%;   /* stays inside page */
+  width: auto;       /* 🔑 lets the table shrink */
+  margin: 8px 0;
+}
+
+.tiptap table tr {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.tiptap table th,
+.tiptap table td {
+  position: relative;         /* needed for resize handle */
+  border: 1px solid #e2e8f0;
+  padding: 6px 8px;
+  font-size: 11px;
+  vertical-align: top;
+}
+
+.tiptap table th {
+  background-color: #f8fafc;
+  font-weight: 600;
+}
+
+/* resize handle for columns (from prosemirror-tables) */
+.tiptap .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  cursor: col-resize;
+  background-color: #cbd5f5;
+}
+
+/* keep empty cells visible */
+.tiptap table p {
+  min-height: 16px;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;               /* Chrome, Safari */
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;    /* IE and Edge */
+  scrollbar-width: none;       /* Firefox */
+}
+
+@theme inline {
+  --font-sans: "Geist", "Geist Fallback";
+  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+::selection,
+*::selection {
+  background: rgba(99, 91, 255, 0.22); /* softer indigo highlight */
+  color: inherit;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* new: stack entrance animation */
+@keyframes stack {
+  0% {
+    transform: translateY(24px) scale(0.96);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}

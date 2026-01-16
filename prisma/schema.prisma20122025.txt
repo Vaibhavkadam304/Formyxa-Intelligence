@@ -1,0 +1,83 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]  // needed for @prisma/adapter-pg in 5.x
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Template {
+  id                 String    @id @default(cuid())
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  name               String
+  slug               String    @unique
+  type               String
+
+  placeholderSchema   Json?
+  contentJsonTemplate Json?
+
+  // ✅ NEW (optional but powerful)
+  supportedPresets    String[] @default(["corporate"])
+
+  documents          Document[]
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  title       String
+  template    Template @relation(fields: [templateId], references: [id])
+  templateId  String
+  variables   Json
+  
+  // ✅ TipTap JSON – optional
+  contentJson Json?
+}
+
+model LegalDraftTemplate {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  category     String
+  title        String
+  htmlTemplate String
+  fieldsSchema Json
+  docxKey      String?  // ✅ optional for older rows
+  cssPreset    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model BrandProfile {
+  id           String   @id @default(cuid())
+  slug         String   @unique      // e.g. "default-brand"
+  companyName  String
+  logoUrl      String?
+  addressLine1 String?
+  addressLine2 String?
+  phone        String?
+  email        String?
+
+  signatories  SignatoryProfile[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model SignatoryProfile {
+  id                String       @id @default(cuid())
+  slug              String       @unique      // e.g. "default-hr"
+  brandProfileId    String
+  brandProfile      BrandProfile @relation(fields: [brandProfileId], references: [id])
+
+  fullName          String
+  designation       String
+  signatureImageUrl String?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}

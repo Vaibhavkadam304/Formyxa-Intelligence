@@ -1,0 +1,727 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* ===== Formyxa Light Theme – Enterprise Blue ===== */
+
+  /* Base surfaces & text */
+  --background: #f5f9ff;           /* soft blue-tinted white */
+  --foreground: #020617;           /* slate-950 */
+
+  --card: #ffffff;
+  --card-foreground: #020617;
+
+  --popover: #ffffff;
+  --popover-foreground: #020617;
+
+  /* Primary = pure enterprise blue */
+  --primary: #2563eb;              /* blue-600 */
+  --primary-foreground: #ffffff;
+
+  /* Secondary = soft blue surface */
+  --secondary: #dbeafe;            /* blue-100 */
+  --secondary-foreground: #0f172a; /* slate-900 */
+
+  /* Muted / subtle panels */
+  --muted: #eff6ff;                /* blue-50 */
+  --muted-foreground: #475569;     /* slate-600 */
+
+  /* Accent (chips, pills, hovers) */
+  --accent: #dbeafe;
+  --accent-foreground: #0f172a;
+
+  /* Status */
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  /* Borders / inputs / focus */
+  --border: #bfdbfe;               /* blue-200 */
+  --input: #ffffff;
+  --ring: #2563eb;                 /* blue-600 */
+
+  /* Charts (clean blue scale only) */
+  --chart-1: #2563eb;
+  --chart-2: #1d4ed8;
+  --chart-3: #3b82f6;
+  --chart-4: #60a5fa;
+  --chart-5: #93c5fd;
+
+  /* Radius */
+  --radius: 0.75rem;
+
+  /* Sidebar (editor / docs layout) */
+  --sidebar: #020617;              /* slate-950 */
+  --sidebar-foreground: #e5edff;   /* blue-tinted light */
+  --sidebar-primary: #2563eb;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #0b1220;
+  --sidebar-accent-foreground: #e5edff;
+  --sidebar-border: #111827;
+  --sidebar-ring: #2563eb;
+}
+
+.dark {
+  /* ===== Formyxa Dark Theme – Enterprise Blue Night ===== */
+
+  --background: #020617;           /* slate-950 */
+  --foreground: #e5edff;
+
+  --card: #020617;
+  --card-foreground: #e5edff;
+
+  --popover: #020617;
+  --popover-foreground: #e5edff;
+
+  /* Primary blue tuned for dark contrast */
+  --primary: #60a5fa;              /* blue-400 */
+  --primary-foreground: #020617;
+
+  --secondary: #0b1220;
+  --secondary-foreground: #e5edff;
+
+  --muted: #020617;
+  --muted-foreground: #94a3b8;
+
+  --accent: #0b1220;
+  --accent-foreground: #e5edff;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #1a0b0b;
+
+  --border: #1e293b;
+  --input: #020617;
+  --ring: #60a5fa;
+
+  --chart-1: #60a5fa;
+  --chart-2: #2563eb;
+  --chart-3: #93c5fd;
+  --chart-4: #3b82f6;
+  --chart-5: #1d4ed8;
+
+  --radius: 0.75rem;
+
+  --sidebar: #020617;
+  --sidebar-foreground: #e5edff;
+  --sidebar-primary: #60a5fa;
+  --sidebar-primary-foreground: #020617;
+  --sidebar-accent: #0b1220;
+  --sidebar-accent-foreground: #e5edff;
+  --sidebar-border: #1f2933;
+  --sidebar-ring: #60a5fa;
+}
+
+/* ===== Editor / TipTap styles (unchanged) ===== */
+
+.tiptap {
+  outline: none;
+  font-family: "Times New Roman", serif;
+  font-size: 11pt;
+  line-height: 1.6;
+  color: rgb(15 23 42);
+}
+
+/* ===============================
+   BASE SPACING (UNCHANGED)
+   =============================== */
+
+.tiptap .ProseMirror {
+  outline: none;
+  line-height: 1.6;
+}
+
+.tiptap .ProseMirror p {
+  margin: 0.65rem 0;
+}
+
+.tiptap .ProseMirror ul,
+.tiptap .ProseMirror ol {
+  margin: 0.6rem 0 0.8rem 1.5rem;
+  padding: 0;
+}
+
+.tiptap .ProseMirror li {
+  margin: 0.2rem 0;
+}
+
+/* Tight spacing for quick email templates */
+.tiptap--website-proposal-quick-email .ProseMirror p {
+  margin: 0.3rem 0;
+}
+
+.tiptap--website-proposal-quick-email .ProseMirror ul,
+.tiptap--website-proposal-quick-email .ProseMirror ol {
+  margin: 0.35rem 0 0.6rem 1.5rem;
+}
+
+.tiptap--website-proposal-quick-email .ProseMirror li {
+  margin: 0.15rem 0;
+}
+
+/* ===============================
+   LEGAL DOCUMENT TYPOGRAPHY FIX
+   =============================== */
+
+/* Subtle bold (matches Word legal docs) */
+.tiptap strong {
+  font-weight: 500;
+}
+
+/* Headings: SAME size as body, only weight changes */
+.tiptap h1,
+.tiptap h2,
+.tiptap h3 {
+  font-size: 11pt;      /* no size inflation */
+  font-weight: 600;    /* slightly heavier */
+  margin: 6pt 0;
+  text-align: inherit;
+}
+
+/* Prevent double-bold inside headings */
+.tiptap h1 strong,
+.tiptap h2 strong,
+.tiptap h3 strong {
+  font-weight: 600;
+}
+
+/* Centered headings when required */
+.tiptap p.center,
+.tiptap h1.center,
+.tiptap h2.center,
+.tiptap h3.center {
+  text-align: center;
+}
+
+/* ===============================
+   LISTS (UNCHANGED)
+   =============================== */
+
+.tiptap ul,
+.tiptap ol {
+  margin: 4px 0 4px 1.25rem;
+  padding: 0;
+}
+
+.tiptap li {
+  margin: 1px 0;
+}
+
+.tiptap ul {
+  list-style-type: disc;
+  list-style-position: outside;
+  margin-left: 1.5rem;
+}
+
+.tiptap ol {
+  list-style-type: decimal;
+  list-style-position: outside;
+  margin-left: 1.5rem;
+}
+
+/* ===============================
+   MEDIA
+   =============================== */
+
+.tiptap img {
+  display: inline-block;
+  max-width: 100%;
+  height: auto;
+}
+
+
+
+
+
+
+/* ===========================================
+   Blog editor specific styles (Medium-like)
+   Uses .tiptap + .tiptap-blog to avoid
+   touching JsonEditor
+   =========================================== */
+
+.tiptap-blog {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "SF Pro Text",
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 14.5px;
+  line-height: 1.8;
+  color: rgb(15 23 42);
+}
+
+/* Paragraph spacing – nice "one line gap" */
+.tiptap-blog p {
+  margin: 0 0 1.25em;
+}
+
+/* Headings for blog – left aligned, premium feel */
+.tiptap-blog h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 0.85em;
+  text-align: left;
+}
+
+.tiptap-blog h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1.75em 0 0.75em;
+  text-align: left;
+}
+
+/* Lists inside blog body */
+.tiptap-blog ul,
+.tiptap-blog ol {
+  margin: 0 0 1.25em 1.4rem;
+  padding: 0;
+}
+
+.tiptap-blog li {
+  margin: 0.25em 0;
+}
+
+.editor-content {
+  font-family: "Times New Roman", Georgia, "Times", serif;
+  font-size: 12pt;
+  line-height: 1.25;
+}
+
+.editor-content p {
+  margin-top: 0;
+  margin-bottom: 6pt;
+}
+
+.editor-content h1 {
+  font-size: 18pt;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 12pt;
+}
+
+.editor-content h2 {
+  font-size: 14pt;
+  font-style: italic;
+  text-align: center;
+  margin: 8pt 0 4pt;
+}
+
+.editor-content p.center,
+.editor-content .center {
+  text-align: center;
+}
+
+
+/* Hide scrollbars but keep scroll behaviour */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;    /* Firefox */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;            /* Chrome, Safari, Opera */
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;  /* IE/Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+/*  */
+.legal-doc {
+  font-family: "Times New Roman", serif;
+  font-size: 13px;
+  line-height: 1.4;
+  max-width: 794px; /* ~A4 width */
+  margin: 0 auto;
+}
+
+.legal-doc .doc-title {
+  text-align: center;
+  font-size: 18px;
+  text-decoration: underline;
+  margin-bottom: 16px;
+}
+
+.legal-doc h2 {
+  font-size: 14px;
+  margin-top: 14px;
+  margin-bottom: 4px;
+}
+
+.legal-doc p {
+  margin: 4px 0;
+  text-align: justify;
+}
+
+.legal-doc .sign-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem;
+  margin-top: 24px;
+}
+
+.legal-doc .sign-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.legal-doc .sign-line {
+  margin-top: 16px;
+}
+
+.tiptap p:hover,
+.tiptap h1:hover,
+.tiptap h2:hover,
+.tiptap h3:hover {
+  background-color: rgba(37, 99, 235, 0.04);
+}
+
+
+.tiptap table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  max-width: 100%;   /* stays inside page */
+  width: auto;       /* 🔑 lets the table shrink */
+  margin: 8px 0;
+}
+
+.tiptap table tr {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.tiptap table th,
+.tiptap table td {
+  position: relative;         /* needed for resize handle */
+  border: 1px solid #e2e8f0;
+  padding: 6px 8px;
+  font-size: 11px;
+  vertical-align: top;
+}
+
+.tiptap table th {
+  background-color: #f8fafc;
+  font-weight: 600;
+}
+
+/* resize handle for columns (from prosemirror-tables) */
+.tiptap .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  cursor: col-resize;
+  background-color: #cbd5f5;
+}
+
+/* keep empty cells visible */
+.tiptap table p {
+  min-height: 16px;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;               /* Chrome, Safari */
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;    /* IE and Edge */
+  scrollbar-width: none;       /* Firefox */
+}
+
+
+
+
+/* css rules  */
+/* ====================================================== */
+/* ============================= */
+/* Base shared layout */
+/* ============================= */
+
+/* ======================================================
+   OFFER LETTER – BASE LAYOUT (GLOBAL)
+   ====================================================== */
+
+.offer-root {
+  font-family: Inter, Arial, sans-serif;
+  color: #111;
+}
+
+/* ---------- Header ---------- */
+
+.offer-header {
+  position: relative;
+  padding: 24px;
+}
+
+.offer-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 16px;
+}
+
+.offer-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 70%;
+}
+
+.offer-header-right {
+  text-align: right;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.offer-logo {
+  max-height: 48px;
+  width: auto;
+}
+
+/* Company text */
+.offer-company-name {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.offer-company-address {
+  font-size: 11px;
+  color: #475569;
+}
+
+/* ---------- Title ---------- */
+
+.offer-title {
+  margin-top: 24px;
+  padding: 8px 0;
+  text-align: center;
+  border-top: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+}
+
+.offer-title-text {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+}
+
+/* ---------- Body ---------- */
+
+.offer-body {
+  padding: 32px 24px;
+  line-height: 1.6;
+}
+
+/* ---------- Footer ---------- */
+
+.offer-footer {
+  padding: 24px;
+}
+
+/* ======================================================
+   TEMPLATE VARIANTS (MATCH designKey EXACTLY)
+   ====================================================== */
+
+/* ---------- Modern Blue ---------- */
+
+.offer_modern_blue .offer-header {
+  background: linear-gradient(90deg, #2563eb, #1e40af);
+  color: #ffffff;
+}
+
+.offer_modern_blue .offer-header-right {
+  color: #e0e7ff;
+}
+
+.offer_modern_blue .offer-title {
+  border-color: #bfdbfe;
+}
+
+/* ---------- Minimal Plain ---------- */
+
+.offer_minimal_plain .offer-header {
+  background: #f0fdf4;            /* very light pale green */
+  color: #064e3b;
+  border-bottom: 1px solid #bbf7d0;
+}
+
+.offer_minimal_plain .offer-header-right {
+  color: #065f46;
+}
+
+.offer_minimal_plain .offer-title {
+  border-color: #bbf7d0;
+}
+/* ---------- Classic Border ---------- */
+
+.offer_classic_border {
+  border: 1px solid #111;
+  background: #ffffff;
+}
+
+.offer_classic_border .offer-header {
+  background: #ffffff;
+  color: #111111;
+  border-bottom: 1px solid #111;
+  font-family: "Times New Roman", serif;
+}
+
+.offer_classic_border .offer-header-right {
+  color: #111111;
+}
+
+.offer_classic_border .offer-title {
+  border-color: #111111;
+}
+
+.offer_classic_border .offer-body {
+  font-family: "Times New Roman", serif;
+  color: #111111;
+}
+
+/* ---------- Green Wave ---------- */
+
+.offer_green_wave .offer-header {
+  background: linear-gradient(90deg, #16a34a, #15803d);
+  color: #ffffff;
+}
+
+.offer_green_wave .offer-header-right {
+  color: #dcfce7;
+}
+
+.offer_green_wave .offer-title {
+  border-color: #86efac;
+}
+
+
+/* ===================header style============ */
+.offer-header-clickable {
+  cursor: pointer;
+  position: relative;
+}
+
+.offer-header-clickable:hover {
+  outline: 2px dashed rgba(99, 91, 255, 0.35);
+  outline-offset: -4px;
+}
+
+.offer-header-clickable::after {
+  content: "Click to edit header";
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 11px;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 2px 8px;
+  border-radius: 999px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.offer-header-clickable:hover::after {
+  opacity: 1;
+}
+
+/* Limit readable text width like Word / Google Docs */
+.offer-root .tiptap p,
+.offer-root .tiptap li {
+  max-width: 65ch;
+}
+
+.offer-root .tiptap p,
+.offer-root .tiptap li {
+  max-width: 65ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+.document-page {
+  box-shadow: 0 0 0 1px #e5e7eb, 0 18px 40px rgba(0,0,0,0.08);
+}
+
+/* =================================================================================== */
+
+
+@theme inline {
+  --font-sans: "Geist", "Geist Fallback";
+  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+::selection,
+*::selection {
+  background: rgba(99, 91, 255, 0.22); /* softer indigo highlight */
+  color: inherit;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* new: stack entrance animation */
+@keyframes stack {
+  0% {
+    transform: translateY(24px) scale(0.96);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}

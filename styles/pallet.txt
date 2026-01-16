@@ -1,0 +1,47 @@
+🎨 Final Recommended Palette (Full System)
+
+Use this exact set across your entire app (UI + marketing + editor + website)
+
+Primary (Brand Green)
+
+Primary: #0F766E (emerald green)
+
+Primary Hover: #0D6A62
+
+Primary Light: #D9F3EF
+
+Primary Border: #99D6CD
+
+Secondary (Soft Mint)
+
+Secondary: #A7F3D0
+
+Secondary Hover: #86E3B6
+
+Secondary Border: #6FD4A4
+
+Neutral (Greys for UI, similar to Notion)
+
+Background: #F7F9FA
+
+Card: #FFFFFF
+
+Border: #E5E7EB
+
+Text Primary: #1F2937
+
+Text Secondary: #6B7280
+
+Accents
+
+Accent Blue: #2563EB (links / highlights)
+
+Accent Yellow: #FACC15 (highlight mark)
+
+Accent Red: #DC2626 (errors)
+
+Shadows
+
+Soft Shadow: 0 18px 40px rgba(15,23,42,0.08)
+
+Thin Border Shadow: 0 0 0 1px rgba(15,23,42,0.06)
