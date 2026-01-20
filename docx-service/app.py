@@ -49,15 +49,21 @@ EDITOR_BASE_TEMPLATES = {
         BASE_DIR, "templates", "offer_letter_green_wave.docx"
     ),
 
-    # Backward-compat: if something still sends the slug instead of designKey
+    # 🔽 ADD THESE 🔽
+    "offer_classic_border": os.path.join(
+        BASE_DIR, "templates", "offer_letter_classic_border.docx"
+    ),
+    "offer_minimal_plain": os.path.join(
+        BASE_DIR, "templates", "offer_letter_minimal_plain.docx"
+    ),
+
+    # Backward compatibility
     "offer-letter-standard": os.path.join(
         BASE_DIR, "templates", "offer_letter_modern_blue.docx"
     ),
-    "proposal_modern_blue": os.path.join(BASE_DIR, "templates", "proposal_modern_blue.docx"),
-    # You can add more when you create extra designs:
-    # "offer_classic_border": os.path.join(BASE_DIR, "templates", "offer_letter_classic_border.docx"),
-    # "noc_plain": os.path.join(BASE_DIR, "templates", "noc_employee_visa_plain.docx"),
-    # "rental_plain": os.path.join(BASE_DIR, "templates", "rental_agreement_11_months.docx"),
+    "proposal_modern_blue": os.path.join(
+        BASE_DIR, "templates", "proposal_modern_blue.docx"
+    ),
 }
 
 # NOTE: we intentionally DO NOT include "visa-expiration-letter" here.

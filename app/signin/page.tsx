@@ -47,7 +47,7 @@ export default function SignInPage() {
             Sign in to Formyxa
           </h1>
           <p className="text-sm text-muted-foreground">
-            Access your saved letters and pick up formatting where you left off.
+            Sign in for early access features. No sign-up required to try the editor.
           </p>
         </div>
 

@@ -15,6 +15,7 @@ type BuilderClientProps = {
   title: string;
   initialContentJson?: any;
   templateSlug: string;
+  placeholderSchema?: Record<string, { label: string }>; // ✅ ADD
   brand: BrandProfile | null;
   signatory: SignatoryProfile | null;
   initialDesignKey?: string;
@@ -53,6 +54,7 @@ export default function BuilderClient({
   title,
   initialContentJson,
   templateSlug,
+  placeholderSchema, // ✅ ADD
   brand,
   signatory,
   initialDesignKey,
@@ -229,6 +231,7 @@ export default function BuilderClient({
           onSave={handleSave}
           onExport={handleDownload}
           templateSlug={templateSlug}
+          placeholderSchema={placeholderSchema}   // ✅ ADD THIS LINE
           designKey={designKey}
           brand={brandState || undefined}
           signatory={signatory || undefined}

@@ -25,3 +25,5 @@ prisma/migrations/
 # editor
 .vscode/
 .idea/
+
+docx-service/venv/

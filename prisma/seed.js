@@ -242,41 +242,350 @@ const offerLetterContentJson = {
 
 const customOfferLetterJson = offerLetterContentJson;
 
+// const corporateOfferLetterJson = {
+//   ...offerLetterContentJson,
+//   content: offerLetterContentJson.content.map((node) => {
+//     if (
+//       node.type === "paragraph" &&
+//       node.content?.some((c) =>
+//         c.text?.includes(
+//           "I am pleased to extend an informal offer of employment"
+//         )
+//       )
+//     ) {
+//       return {
+//         type: "paragraph",
+//         content: [
+//           {
+//             type: "text",
+//             text:
+//               "We are pleased to inform you that you have been selected for the position of ",
+//           },
+//           {
+//             type: "text",
+//             text: "{{job_title}}",
+//             marks: [{ type: "bold" }],
+//           },
+//           {
+//             type: "text",
+//             text:
+//               ". Based on our evaluation process, your qualifications and experience align well with the requirements of this role.",
+//           },
+//         ],
+//       };
+//     }
+//     return node;
+//   }),
+// };
+
 const corporateOfferLetterJson = {
-  ...offerLetterContentJson,
-  content: offerLetterContentJson.content.map((node) => {
-    if (
-      node.type === "paragraph" &&
-      node.content?.some((c) =>
-        c.text?.includes(
-          "I am pleased to extend an informal offer of employment"
-        )
-      )
-    ) {
-      return {
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text:
-              "We are pleased to inform you that you have been selected for the position of ",
-          },
-          {
-            type: "text",
-            text: "{{job_title}}",
-            marks: [{ type: "bold" }],
-          },
-          {
-            type: "text",
-            text:
-              ". Based on our evaluation process, your qualifications and experience align well with the requirements of this role.",
-          },
-        ],
-      };
-    }
-    return node;
-  }),
+  type: "doc",
+  content: [
+    // Date
+    {
+      type: "paragraph",
+      content: [
+        { type: "text", text: "{{offer_date}}", marks: [{ type: "bold" }] },
+      ],
+    },
+
+    { type: "paragraph", content: [{ type: "text", text: "" }] },
+
+    // Candidate block
+    { type: "paragraph", content: [{ type: "text", text: "To," }] },
+    {
+      type: "paragraph",
+      content: [
+        { type: "text", text: "{{candidate_name}}", marks: [{ type: "bold" }] },
+      ],
+    },
+    {
+      type: "paragraph",
+      content: [{ type: "text", text: "{{candidate_address}}" }],
+    },
+
+    { type: "paragraph", content: [{ type: "text", text: "" }] },
+
+    // Salutation
+    {
+      type: "paragraph",
+      content: [
+        { type: "text", text: "Dear " },
+        {
+          type: "text",
+          text: "{{candidate_name}}",
+          marks: [{ type: "bold" }],
+        },
+        { type: "text", text: "," },
+      ],
+    },
+
+    { type: "paragraph", content: [{ type: "text", text: "" }] },
+
+    // Subject
+    {
+      type: "paragraph",
+      content: [
+        { type: "text", text: "Sub: ", marks: [{ type: "bold" }] },
+        {
+          type: "text",
+          text: "Offer of Employment",
+          marks: [{ type: "underline" }],
+        },
+      ],
+    },
+
+    { type: "paragraph", content: [{ type: "text", text: "" }] },
+
+    // Intro
+    {
+      type: "paragraph",
+      content: [
+        {
+          type: "text",
+          text:
+            "Further to our discussions, we are pleased to offer you the role of ",
+        },
+        {
+          type: "text",
+          text: "{{job_title}}",
+          marks: [{ type: "bold" }],
+        },
+        {
+          type: "text",
+          text:
+            " on the following terms and conditions, subject to Company policies:",
+        },
+      ],
+    },
+
+    { type: "paragraph", content: [{ type: "text", text: "" }] },
+
+    // Start date
+    {
+      type: "paragraph",
+      content: [
+        { type: "text", text: "Your date of joining will be " },
+        {
+          type: "text",
+          text: "{{start_date}}",
+          marks: [{ type: "bold" }],
+        },
+        { type: "text", text: "." },
+      ],
+    },
+
+    { type: "paragraph", content: [{ type: "text", text: "" }] },
+
+    // Clauses
+    {
+      type: "orderedList",
+      attrs: { order: 1 },
+      content: [
+        {
+          type: "listItem",
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                { type: "text", text: "Compensation: ", marks: [{ type: "bold" }] },
+                {
+                  type: "text",
+                  text:
+                    "Your total compensation will be ",
+                },
+                {
+                  type: "text",
+                  text: "{{salary_ctc}}",
+                  marks: [{ type: "bold" }],
+                },
+                {
+                  type: "text",
+                  text:
+                    " per annum (CTC), payable monthly in arrears, subject to applicable statutory deductions.",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          type: "listItem",
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                {
+                  type: "text",
+                  text:
+                    "Working Hours & Location: ",
+                  marks: [{ type: "bold" }],
+                },
+                {
+                  type: "text",
+                  text:
+                    "Your normal working hours and place of work shall be as per Company policy and business requirements.",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          type: "listItem",
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                { type: "text", text: "Reporting: ", marks: [{ type: "bold" }] },
+                { type: "text", text: "You will report directly to " },
+                {
+                  type: "text",
+                  text: "{{reporting_manager}}",
+                  marks: [{ type: "bold" }],
+                },
+                { type: "text", text: "." },
+              ],
+            },
+          ],
+        },
+        {
+          type: "listItem",
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                { type: "text", text: "Probation: ", marks: [{ type: "bold" }] },
+                {
+                  type: "text",
+                  text: "You will be on probation for a period of ",
+                },
+                {
+                  type: "text",
+                  text: "{{probation_period}}",
+                  marks: [{ type: "bold" }],
+                },
+                { type: "text", text: "." },
+              ],
+            },
+          ],
+        },
+        {
+          type: "listItem",
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                {
+                  type: "text",
+                  text: "Notice Period: ",
+                  marks: [{ type: "bold" }],
+                },
+                {
+                  type: "text",
+                  text:
+                    "The notice period applicable to this role shall be ",
+                },
+                {
+                  type: "text",
+                  text: "{{notice_period}}",
+                  marks: [{ type: "bold" }],
+                },
+                { type: "text", text: "." },
+              ],
+            },
+          ],
+        },
+        {
+          type: "listItem",
+          content: [
+            {
+              type: "paragraph",
+              content: [
+                {
+                  type: "text",
+                  text: "Confidentiality: ",
+                  marks: [{ type: "bold" }],
+                },
+                {
+                  type: "text",
+                  text:
+                    "You shall maintain strict confidentiality of all Company information during and after your employment.",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+
+    { type: "paragraph", content: [{ type: "text", text: "" }] },
+
+    // Legal
+    {
+      type: "paragraph",
+      content: [
+        {
+          type: "text",
+          text:
+            "This offer is conditional upon satisfactory background verification and may be withdrawn by the Company at any time in the event of an unsatisfactory outcome of such verification.",
+        },
+      ],
+    },
+
+    { type: "paragraph", content: [{ type: "text", text: "" }] },
+
+    // Acceptance
+    {
+      type: "paragraph",
+      content: [
+        {
+          type: "text",
+          text:
+            "If you wish to proceed, please confirm your acceptance of this offer on or before ",
+        },
+        {
+          type: "text",
+          text: "{{acceptance_deadline}}",
+          marks: [{ type: "bold" }],
+        },
+        { type: "text", text: "." },
+      ],
+    },
+
+    { type: "paragraph", content: [{ type: "text", text: "" }] },
+
+    // Closing
+    {
+      type: "paragraph",
+      content: [
+        {
+          type: "text",
+          text: "We look forward to welcoming you to the organization.",
+        },
+      ],
+    },
+
+    { type: "paragraph", content: [{ type: "text", text: "" }] },
+
+    // Signature
+    { type: "paragraph", content: [{ type: "text", text: "Sincerely," }] },
+    {
+      type: "paragraph",
+      content: [
+        {
+          type: "text",
+          text: "{{signatory_name}}",
+          marks: [{ type: "bold" }],
+        },
+      ],
+    },
+    {
+      type: "paragraph",
+      content: [{ type: "text", text: "{{signatory_designation}}" }],
+    },
+  ],
 };
+
+
 
 
 const startupOfferLetterJson = {

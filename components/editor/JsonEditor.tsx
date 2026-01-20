@@ -8,6 +8,8 @@ import { TextStyle } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import Highlight from "@tiptap/extension-highlight";
 import { Node, Mark, Extension } from "@tiptap/core";
+import FontFamily from "@tiptap/extension-font-family";
+import Bold from "@tiptap/extension-bold";
 
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
@@ -44,6 +46,7 @@ type JsonEditorProps = {
   onEditorReady?: (editor: any) => void;
   onEditHeader?: () => void; // ✅ ADD
   variables?: Record<string, any>; // ✅ ADD THIS
+  placeholderSchema?: Record<string, { label: string }>
 };
 
 // ---------------------------------------------------------------------
@@ -56,28 +59,27 @@ function stripEmptyTextNodes(node: any): any {
   if (!node || typeof node !== "object") return node;
 
   if (Array.isArray(node)) {
-    const processed = node.map(stripEmptyTextNodes).filter((child) => child != null);
-    return processed;
+    return node
+      .map(stripEmptyTextNodes)
+      .filter((child) => child != null);
   }
 
   const clone: any = { ...node };
 
   if (clone.type === "text") {
-    const text = clone.text;
-    if (typeof text !== "string" || text.length === 0) return null;
+    if (!clone.text || clone.text.length === 0) return null;
     return clone;
   }
 
   if (Array.isArray(clone.content)) {
-    clone.content = clone.content.map(stripEmptyTextNodes).filter((child: any) => child != null);
-  }
-
-  if (Array.isArray(clone.marks)) {
-    clone.marks = clone.marks.map(stripEmptyTextNodes).filter((m: any) => m != null);
+    clone.content = clone.content
+      .map(stripEmptyTextNodes)
+      .filter((child: any) => child != null);
   }
 
   return clone;
 }
+
 
 function normalizeDoc(doc: any): any {
   if (!doc) return DEFAULT_DOC;
@@ -224,6 +226,53 @@ const SignaturesBlock = Node.create({
   },
 });
 
+function transformTextPlaceholdersToNodes(
+  node: any,
+  placeholderSchema?: Record<string, { label: string }>
+): any {
+  if (!node || typeof node !== "object") return node;
+
+  if (Array.isArray(node)) {
+    return node.map((child) =>
+      transformTextPlaceholdersToNodes(child, placeholderSchema)
+    );
+  }
+
+  const cloned: any = { ...node };
+
+  if (cloned.type === "text" && typeof cloned.text === "string") {
+    const match = cloned.text.trim().match(/^\{(.+?)\}$/);
+
+    if (match) {
+      const label = match[1];
+      const key = placeholderSchema
+        ? Object.entries(placeholderSchema).find(
+            ([_, meta]) => meta.label === label
+          )?.[0]
+        : undefined;
+
+      return {
+        type: "placeholderInline",
+        attrs: {
+          key: key ?? label,
+          label,
+          value: "",
+        },
+      };
+    }
+  }
+
+  if (Array.isArray(cloned.content)) {
+    cloned.content = cloned.content.map((child: any) =>
+      transformTextPlaceholdersToNodes(child, placeholderSchema)
+    );
+  }
+
+  return cloned;
+}
+
+
+
 // ---------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------
@@ -240,6 +289,7 @@ export function JsonEditor({
   brand,
   signatory,
   variables, // ✅ ADD THIS
+  placeholderSchema, // ✅ ADD THIS
   chrome = "full",
   zoom: zoomProp,
   onZoomChange,
@@ -267,13 +317,106 @@ export function JsonEditor({
     [templateSlug, effectiveDesignKey]
   );
   const hasInitializedRef = useRef(false);
+  
+  function getUnderlineWidth(label: string) {
+    const charCount = label.length;
+
+    // roughly 1ch per 1 character, clamped
+    const width = Math.min(Math.max(charCount * 1.1, 80), 220);
+
+    return `min-w-[${Math.round(width)}px]`;
+  }
+
+
+  const PlaceholderInline = Node.create({
+    name: "placeholderInline",
+    inline: true,
+    group: "inline",
+    atom: true,
+    selectable: true,
+
+    addAttributes() {
+      return {
+        key: { default: "" },   // e.g. acceptance_deadline
+        label: { default: "" }  // e.g. Last date to accept offer
+      };
+    },
+
+    parseHTML() {
+      return [{ tag: "span[data-placeholder]" }];
+    },
+
+    // 🔴 REQUIRED for ProseMirror internals (prevents e.spec.toDOM errors)
+    renderHTML({ node }) {
+      return [
+        "span",
+        {
+          "data-placeholder": "true",
+          "data-key": node.attrs.key,
+          "data-label": node.attrs.label,
+          class: "placeholder-inline",
+        },
+        `${node.attrs.label}: __________`,
+      ];
+    },
+
+    // 🟢 Interactive behavior
+    addNodeView() {
+      return ({ editor, node, getPos }) => {
+        const wrapper = document.createElement("span");
+        wrapper.className =
+          "inline-flex items-center gap-2 cursor-text select-none";
+
+        // label
+        const label = document.createElement("span");
+        label.className =
+           "text-slate-500 text-sm font-medium font-sans whitespace-nowrap";
+        label.textContent = node.attrs.label + ":";
+
+        // underline
+        const line = document.createElement("span");
+
+        // ✅ UNIVERSAL width logic (label-based)
+        const charCount = node.attrs.label.length;
+        const widthPx = Math.min(Math.max(charCount * 8, 80), 220);
+
+        line.className =
+           "inline-block border-b border-dashed border-slate-400";
+
+        line.style.minWidth = `${widthPx}px`;
+
+        wrapper.append(label, line);
+
+        // 🔥 CLICK = remove placeholder immediately
+        wrapper.onclick = () => {
+          const pos = getPos?.();
+          if (typeof pos !== "number") return;
+
+          editor
+            .chain()
+            .focus()
+            .deleteRange({ from: pos, to: pos + 1 })
+            .run();
+        };
+
+        return { dom: wrapper };
+      };
+    },
+  });
+
+
+
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        bold: false, // disable internal bold to avoid conflicts
+      }),
+      Bold, // ✅ explicitly enable bold
       BetterListEnter,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       TextStyle,
+      FontFamily,         // ✅ THIS WAS MISSING
       Color,
       Highlight,
       LineHeight, // ✅ add this
@@ -289,6 +432,7 @@ export function JsonEditor({
       UnderlineMark,
       PageBreak,
       SignaturesBlock, // ✅ ADD THIS
+      PlaceholderInline, // ✅ ADD HERE
     ],
     content: DEFAULT_DOC,
     editable: true,
@@ -306,19 +450,28 @@ export function JsonEditor({
   }, [editor, onEditorReady]);
 
   // init content once
-  useEffect(() => {
-    if (!editor) return;
-    if (!safeInitialDoc) return;
-    if (hasInitializedRef.current) return;
+useEffect(() => {
+  if (!editor) return;
+  if (!safeInitialDoc) return;
+  if (hasInitializedRef.current) return;
 
-    try {
-      editor.commands.setContent(safeInitialDoc as any, false);
-      setDocJson(safeInitialDoc);
-      hasInitializedRef.current = true;
-    } catch {
-      // ignore
-    }
-  }, [editor, safeInitialDoc]);
+  try {
+    // 1️⃣ Clean empty text nodes first
+    const cleanedDoc = stripEmptyTextNodes(safeInitialDoc);
+
+    // 2️⃣ Convert {Label} → placeholderInline nodes
+    const transformedDoc = transformTextPlaceholdersToNodes(
+      cleanedDoc,
+      placeholderSchema,
+    );
+
+    editor.commands.setContent(transformedDoc as any, false);
+    setDocJson(transformedDoc);
+    hasInitializedRef.current = true;
+  } catch (err) {
+    console.error("Failed to init editor content", err);
+  }
+}, [editor, safeInitialDoc, placeholderSchema]);
 
 
   // ---------------------------------------------------------------------

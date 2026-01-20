@@ -156,13 +156,17 @@ export async function POST(req: NextRequest) {
       backendSlug,
       rawText,
       title,
-      preset = "corporate", // ✅ ADD THIS
+      preset = "corporate",
+      mode,
+      variables: clientVariables,
     } = body as {
       templateSlug?: string;
       backendSlug?: string;
-      rawText?: string;
+      rawText?: string | null;
       title?: string;
       preset?: string;
+      mode?: "qa" | "free";
+      variables?: Record<string, string>;
     };
 
     /* 🟢 SPECIAL CASE: ultra-fast leave application flow
@@ -229,14 +233,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ id: doc.id }, { status: 201 });
     }
 
-    // 🔽 Normal LLM-based flow for all other templates
-
-    if (!rawText || typeof rawText !== "string" || !rawText.trim()) {
-      return NextResponse.json(
-        { error: "rawText is required" },
-        { status: 400 },
-      );
-    }
 
     // Prefer backendSlug → then templateSlug → then a sane default
     const slug =
@@ -261,19 +257,33 @@ export async function POST(req: NextRequest) {
     // ✅ TipTap JSON-based templates
     if (template.contentJsonTemplate) {
       // 1) Call LLM to get structured variables for THIS template
-      const rawVariables = await extractVariablesWithLLM({
-        templateSlug: template.slug,
-        templateName: template.name,
-        placeholderSchema,
-        rawText,
-      });
+      let variables: Record<string, string> = {};
 
-      // 2) Strip out guessed / example values that didn't come from the user
-      const variables = sanitizeVariables(
-        rawVariables ?? {},
-        rawText,
-        placeholderSchema,
-      );
+      if (mode === "qa" && clientVariables) {
+        // ✅ Q&A MODE — trust frontend completely
+        variables = clientVariables;
+      } else {
+        // ✅ FREE MODE — rawText is mandatory
+        if (!rawText || typeof rawText !== "string" || !rawText.trim()) {
+          return NextResponse.json(
+            { error: "rawText is required in free mode" },
+            { status: 400 },
+          );
+        }
+
+        const rawVariables = await extractVariablesWithLLM({
+          templateSlug: template.slug,
+          templateName: template.name,
+          placeholderSchema,
+          rawText,
+        });
+
+        variables = sanitizeVariables(
+          rawVariables ?? {},
+          rawText,
+          placeholderSchema,
+        );
+      }
 
       const brandVars = {
         company_name: variables.company_name ?? "",

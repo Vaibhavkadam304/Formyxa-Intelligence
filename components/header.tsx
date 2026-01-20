@@ -72,21 +72,10 @@ export default function Header() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-4">
-            <Link
-              href="/signin"
-              className="
-                text-sm
-                text-foreground
-                hover:text-foreground/80
-                transition-colors
-              "
-            >
-              Sign in
-            </Link>
 
             {/* Primary CTA */}
             <Link
-              href="/new"
+              href="/org/hr/offer-letter"
               className="
                 inline-flex items-center justify-center
                 rounded-lg px-4 py-2
@@ -100,6 +89,17 @@ export default function Header() {
             >
               Try the demo
             </Link>
+            <Link
+              href="/signin"
+              className="
+                text-sm
+                text-foreground
+                hover:text-foreground/80
+                transition-colors
+              "
+            >
+              Sign in
+            </Link>        
           </div>
         </nav>
       </div>

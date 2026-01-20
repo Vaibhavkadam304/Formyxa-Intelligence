@@ -105,14 +105,36 @@ export default function NewDocumentPage() {
           ? intakeConfig.buildRawText(answers)
           : prompt;
 
+      // const res = await fetch("/api/format", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({
+      //     backendSlug,
+      //     rawText: rawTextToSend,
+      //     title: title || undefined,
+      //     preset: presetFromQuery, // 👈 ADD THIS
+      //   }),
+      // });
+
+      const variables =
+      intakeConfig
+        ? Object.fromEntries(
+            intakeConfig.questions.map((q) => [
+              q.id,
+              answers[q.id] ?? "",
+            ])
+          )
+        : {};
       const res = await fetch("/api/format", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           backendSlug,
-          rawText: rawTextToSend,
+          rawText: isQAMode ? null : rawTextToSend,
           title: title || undefined,
-          preset: presetFromQuery, // 👈 ADD THIS
+          preset: presetFromQuery,
+          mode: isQAMode ? "qa" : "free",
+          variables: isQAMode ? variables : undefined,
         }),
       });
 
@@ -150,19 +172,22 @@ export default function NewDocumentPage() {
         email: answers.company_email,
       };
 
-      const variables = {
-        candidate_name: answers.candidate_name,
-        candidate_address: answers.candidate_address,
-        job_title: answers.job_title,
-        work_location: answers.work_location,
-        offer_date: answers.offer_date,
-        start_date: answers.start_date,
-        salary_ctc: answers.salary_ctc,
-        probation_period: answers.probation_period,
-        notice_period: answers.notice_period,
-        acceptance_deadline: answers.acceptance_deadline,
-        reporting_manager: answers.reporting_manager,
-      };
+      // const variables = {
+      //   candidate_name: answers.candidate_name,
+      //   candidate_address: answers.candidate_address,
+      //   job_title: answers.job_title,
+      //   work_location: answers.work_location,
+      //   offer_date: answers.offer_date,
+      //   start_date: answers.start_date,
+      //   salary_ctc: answers.salary_ctc,
+      //   probation_period: answers.probation_period,
+      //   notice_period: answers.notice_period,
+      //   acceptance_deadline: answers.acceptance_deadline,
+      //   reporting_manager: answers.reporting_manager,
+      // };
+
+      
+
 
       // ✅ 4) Persist into document
       await fetch(`/api/documents/${data.id}`, {

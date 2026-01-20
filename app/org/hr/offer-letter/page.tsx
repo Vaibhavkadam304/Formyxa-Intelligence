@@ -144,10 +144,6 @@ export default function HROfferWorkspacePage() {
             <div className="grid grid-cols-[1fr_auto] items-start gap-6">
               {/* Left: title */}
               <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground">
-                  HR & People Operations
-                </p>
-
                 <h1 className="text-2xl md:text-3xl font-semibold text-foreground font-semibold mt-1">
                   Define your company’s official offer letter
                 </h1>

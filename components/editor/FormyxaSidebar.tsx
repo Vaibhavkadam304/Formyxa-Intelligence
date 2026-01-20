@@ -80,7 +80,7 @@ export function FormyxaSidebar({
       { id: "structure" as const, icon: FileText, label: "Structure" },
       { id: "snippets" as const, icon: Blocks, label: "Snippets" },
       { id: "variables" as const, icon: VariableIcon, label: "Variables" },
-      { id: "brand" as const, icon: Palette, label: "Brand" },
+      { id: "brand" as const, icon: Palette, label: "Company Details" },
       { id: "signatory" as const, icon: User, label: "Signatory" },
     ];
     

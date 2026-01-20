@@ -13,6 +13,36 @@ function sanitizeForHeader(value) {
     .replace(/[^\x20-\x7E]/g, "_");
 }
 
+function prepareDocForExport(node) {
+  if (!node || typeof node !== "object") return node;
+
+  if (Array.isArray(node)) {
+    return node.map(prepareDocForExport);
+  }
+
+  // 🔥 Convert placeholderInline → text
+  if (node.type === "placeholderInline") {
+    const value = node.attrs?.value?.trim();
+
+    return {
+      type: "text",
+      text: value && value.length > 0
+        ? value
+        : "____________________",
+    };
+  }
+
+  const clone = { ...node };
+
+  if (Array.isArray(clone.content)) {
+    clone.content = clone.content.map(prepareDocForExport);
+  }
+
+  return clone;
+}
+
+
+
 export async function POST(req) {
   // Explicitly pull fields we care about (including designKey)
   const {
@@ -24,6 +54,8 @@ export async function POST(req) {
     signatory,
   } = await req.json();
 
+  const cleanedContentJson = prepareDocForExport(contentJson);
+
   const flaskUrl =
     process.env.FLASK_DOCX_URL ?? "http://localhost:8001/generate-docx";
 
@@ -33,7 +65,7 @@ export async function POST(req) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contentJson,
+        contentJson: cleanedContentJson,
         fileName,
         templateSlug,
         designKey, // ✅ send selected visual design
