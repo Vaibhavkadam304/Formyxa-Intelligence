@@ -98,7 +98,6 @@ export async function POST(req: Request) {
     const documentXml = await zip
       .file("word/document.xml")
       ?.async("string")
-++++
     if (!documentXml) {
       return NextResponse.json(
         { error: "document.xml missing" },
