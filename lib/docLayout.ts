@@ -1,10 +1,12 @@
 // lib/docLayout.ts
-import type { DocLayoutStyle } from "@/types/doc-layout"
+import type { DocLayoutStyle } from "@/components/editor/types/doc-layout"
 
 /**
- * Visual styles supported in the editor (Offer-letter MVP only)
+ * Visual styles supported in the editor
  */
 const DOC_LAYOUTS: Record<string, DocLayoutStyle> = {
+
+  // ── Generic fallback ──────────────────────────────────────────────────────
   default: {
     shellVariant: "page",
     showLogo: false,
@@ -13,6 +15,31 @@ const DOC_LAYOUTS: Record<string, DocLayoutStyle> = {
     minPageHeightPx: 1123,
   },
 
+  // ── SOW / Agreements / Retainers / Legal docs ─────────────────────────────
+  // All contract/legal templates share this layout.
+  // The h2 left-border accent styling comes from globals.css — no extra config needed here.
+  sow_standard: {
+    shellVariant: "page",
+    showHeader: true,         // show the filename title banner
+    headerEditable: false,
+    showLogo: false,
+    showSignature: false,
+    pageWidthPx: 794,
+    minPageHeightPx: 1123,
+  },
+
+  // ── Incident / Postmortem (no header banner) ──────────────────────────────
+  incident_plain: {
+    shellVariant: "page",
+    showHeader: false,
+    headerEditable: false,
+    showLogo: false,
+    showSignature: false,
+    pageWidthPx: 794,
+    minPageHeightPx: 1123,
+  },
+
+  // ── Offer letters ─────────────────────────────────────────────────────────
   offer_modern_blue: {
     shellVariant: "page",
     headerImageUrl: "/graphics/offer/header-mod-blue.png",
@@ -40,31 +67,41 @@ const DOC_LAYOUTS: Record<string, DocLayoutStyle> = {
     pageWidthPx: 794,
     minPageHeightPx: 1123,
   },
-
-  offer_classic_border: {
-    shellVariant: "page",
-    showLogo: true,
-    showSignature: true,
-    pageWidthPx: 794,
-    minPageHeightPx: 1123,
-  },
 }
 
 /**
- * Explicit slug → default layout mapping
+ * Explicit slug → default layout mapping.
+ *
+ * Convention:
+ *  - All *-sow-*, *-retainer-*, *-agreement-*, *-nda-* slugs → sow_standard
+ *  - Offer letters → their specific design key
+ *  - Incident → incident_plain
+ *
+ * Add new templates here — no code changes needed elsewhere.
  */
 const SLUG_STYLE_OVERRIDES: Record<string, keyof typeof DOC_LAYOUTS> = {
-  "offer-letter-standard": "offer_modern_blue",
-}
+  // ── SOW / Legal / Agreement templates ──
+  "anti-scope-creep-sow-core":          "sow_standard",
+  "creative-retainer-agreement-core":   "sow_standard",
 
-/**
- * Decide which layout to use for a given template slug + design key.
- */
+  // ── Future templates (add as you create them) ──
+  // "marketing-retainer-core":         "sow_standard",
+  // "service-agreement-core":          "sow_standard",
+  // "nda-core":                        "sow_standard",
+  // "consulting-agreement-core":       "sow_standard",
+
+  // ── Offer letters ──
+  "offer-letter-standard":              "offer_modern_blue",
+
+  // ── Incident / RCA ──
+  "incident-postmortem-core":           "incident_plain",
+};
+
 export function getLayoutForTemplateSlug(
   slug?: string | null,
   designKey?: string | null,
 ): DocLayoutStyle {
-  // 1️⃣ Explicit designKey always wins
+  // 1️⃣ Explicit designKey always wins (e.g. user manually picked a theme)
   if (designKey && DOC_LAYOUTS[designKey]) {
     return DOC_LAYOUTS[designKey]
   }

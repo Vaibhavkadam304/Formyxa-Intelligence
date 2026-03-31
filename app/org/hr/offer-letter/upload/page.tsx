@@ -150,7 +150,7 @@ export default function UploadOfferLetterPage() {
       const mapped: DetectedPlaceholder[] = (data.placeholders || []).map(
         (p: any) => ({
           ...p,
-          enabled: p.confidence !== "low",
+          enabled: true, // 👈 force enable, no QA
         })
       )
 

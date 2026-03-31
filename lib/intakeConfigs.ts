@@ -33,7 +33,9 @@ export interface TemplateIntakeConfig {
   buildRawText: (answers: Record<string, string>) => string;
 }
 
-// -------------------- Offer letter questions --------------------
+// ==========================================================
+// OFFER LETTER
+// ==========================================================
 
 const offerQuestions: IntakeQuestion[] = [
   { id: "company_name", label: "Company name", required: true },
@@ -56,8 +58,6 @@ const offerQuestions: IntakeQuestion[] = [
   { id: "acceptance_deadline", label: "Acceptance deadline" },
   { id: "reporting_manager", label: "Reporting manager" },
 ];
-
-// -------------------- Offer letter steps --------------------
 
 const offerSteps: IntakeStepConfig[] = [
   {
@@ -99,7 +99,52 @@ const offerSteps: IntakeStepConfig[] = [
   },
 ];
 
-// -------------------- Intake configs (ONLY ONE) --------------------
+// ==========================================================
+// ANTI-SCOPE CREEP SOW (Minimal – 4 Questions)
+// ==========================================================
+
+const sowQuestions: IntakeQuestion[] = [
+  {
+    id: "project_name",
+    label: "Project name",
+    required: true,
+  },
+  {
+    id: "client_name",
+    label: "Client name",
+    required: true,
+  },
+  {
+    id: "main_deliverables",
+    label: "Main deliverables",
+    type: "long",
+    required: true,
+  },
+  {
+    id: "revision_rounds",
+    label: "Number of revision rounds included",
+    required: true,
+  },
+];
+
+const sowSteps: IntakeStepConfig[] = [
+  {
+    id: "project",
+    label: "Project",
+    title: "Project details",
+    questionIds: ["project_name", "client_name"],
+  },
+  {
+    id: "scope",
+    label: "Scope",
+    title: "Scope definition",
+    questionIds: ["main_deliverables", "revision_rounds"],
+  },
+];
+
+// ==========================================================
+// ALL INTAKE CONFIGS
+// ==========================================================
 
 export const INTAKE_CONFIGS: TemplateIntakeConfig[] = [
   {
@@ -118,7 +163,27 @@ Job title: ${answers.job_title || ""}
 CTC: ${answers.salary_ctc || ""}
 Start date: ${answers.start_date || ""}
 
-Generate a professional job offer letter using the template "offer-letter-standard".
+Generate a professional job offer letter.
+      `.trim();
+    },
+  },
+
+  {
+    templateSlug: "anti-scope-creep-sow-core",
+    mode: "qa-only", // 🔥 IMPORTANT
+    qaTitle: "Create Anti-Scope Creep SOW",
+    qaSubtitle:
+      "Answer a few questions and we’ll generate a protected scope of work.",
+    questions: sowQuestions,
+    steps: sowSteps,
+    buildRawText(answers) {
+      return `
+Project: ${answers.project_name}
+Client: ${answers.client_name}
+Deliverables: ${answers.main_deliverables}
+Revision rounds included: ${answers.revision_rounds}
+
+Generate a structured Anti-Scope Creep SOW with clear included deliverables and strict revision limits.
       `.trim();
     },
   },

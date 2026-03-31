@@ -1,0 +1,355 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import OpenAI from "openai";
+
+export const runtime = "nodejs";
+
+// ─── Placeholder text prefixes ────────────────────────────────────────────────
+const PLACEHOLDER_PREFIXES = [
+  "enter ", "provide ", "specify ", "describe ",
+  "state ", "define ", "insert ", "add ", "write ",
+];
+
+function isPlaceholderText(text: string): boolean {
+  if (!text || text.trim().length === 0) return true;
+  const lower = text.trim().toLowerCase();
+  return PLACEHOLDER_PREFIXES.some((p) => lower.startsWith(p));
+}
+
+// ─── Extract readable text — SKIPS placeholder paragraphs ────────────────────
+// The old version included placeholder text (e.g. "Provide relevant business
+// context…") which caused the AI to think sections were filled when they weren't.
+function extractTextFromJson(json: any, placeholderTexts: Set<string>): string {
+  let text = "";
+
+  function walk(node: any) {
+    if (!node) return;
+    if (Array.isArray(node)) { node.forEach(walk); return; }
+
+    // ← NEW: skip the whole paragraph if it's an unfilled field
+    if (node.type === "paragraph" && node.attrs?.field) {
+      const paraText = (node.content ?? []).map((c: any) => c.text || "").join("").trim();
+      if (
+        node.attrs?.instructional === true ||
+        isPlaceholderText(paraText) ||
+        placeholderTexts.has(paraText)
+      ) {
+        return; // don't include placeholder text in what AI sees
+      }
+    }
+
+    if (node.type === "text" && node.text) text += node.text + " ";
+    if (Array.isArray(node.content)) node.content.forEach(walk);
+  }
+
+  walk(json);
+  return text.trim();
+}
+
+// ─── Extract required headings from template ──────────────────────────────────
+function extractRequiredSections(templateDoc: any): string[] {
+  const sections: string[] = [];
+  const walk = (nodes: any[]) => {
+    for (const n of nodes) {
+      if (n.type === "heading" && n.attrs?.required) {
+        const text = (n.content ?? []).map((c: any) => c.text || "").join("").trim();
+        const clean = text.replace(/^\d+\.\s*/, "");
+        if (clean) sections.push(clean);
+      }
+      if (n.content) walk(n.content);
+    }
+  };
+  walk(templateDoc?.content ?? []);
+  return sections;
+}
+
+// ─── Extract existing headings from live doc ──────────────────────────────────
+function extractExistingHeadings(doc: any): string[] {
+  const headings: string[] = [];
+  const walk = (nodes: any[]) => {
+    for (const n of nodes) {
+      if (n.type === "heading") {
+        const text = (n.content ?? []).map((c: any) => c.text || "").join("").trim();
+        if (text) headings.push(text.replace(/^\d+\.\s*/, "").toLowerCase());
+      }
+      if (n.content) walk(n.content);
+    }
+  };
+  walk(doc?.content ?? []);
+  return headings;
+}
+
+// ─── Build field → placeholder text map FROM TEMPLATE ────────────────────────
+// This is the key to reliable detection. Instead of relying on TipTap's
+// attrs.instructional (which can be lost), we compare live text against the
+// original template placeholder text. Exact match = unfilled.
+type FieldPlaceholder = {
+  fieldKey: string;
+  placeholderText: string;
+  sectionHeading: string;
+};
+
+function extractTemplatePlaceholders(templateDoc: any): FieldPlaceholder[] {
+  const result: FieldPlaceholder[] = [];
+  let currentHeading = "Document";
+
+  const walk = (node: any) => {
+    if (!node || typeof node !== "object") return;
+
+    if (node.type === "heading") {
+      currentHeading = (node.content ?? [])
+        .map((c: any) => c.text || "")
+        .join("")
+        .trim()
+        .replace(/^\d+\.\s*/, "") || "Section";
+    }
+
+    if (node.type === "paragraph" && node.attrs?.field) {
+      const text = (node.content ?? []).map((c: any) => c.text || "").join("").trim();
+      if (text) {
+        result.push({
+          fieldKey: node.attrs.field,
+          placeholderText: text,
+          sectionHeading: currentHeading,
+        });
+      }
+    }
+
+    if (Array.isArray(node.content)) node.content.forEach(walk);
+  };
+
+  (templateDoc?.content ?? []).forEach(walk);
+  return result;
+}
+
+// ─── Detect unfilled fields by template comparison ────────────────────────────
+// For each field in the template, find the matching paragraph in the live doc
+// and check if the text is still the original placeholder (or empty).
+type UnfilledField = {
+  fieldKey: string;
+  placeholderText: string;
+  sectionHeading: string;
+};
+
+function detectUnfilledByTemplateComparison(
+  liveDoc: any,
+  templatePlaceholders: FieldPlaceholder[],
+): UnfilledField[] {
+  // Step 1: build fieldKey → current text from live doc
+  const liveFieldTexts = new Map<string, string>();
+
+  const walk = (node: any) => {
+    if (!node || typeof node !== "object") return;
+
+    if (node.type === "paragraph" && node.attrs?.field) {
+      const text = (node.content ?? []).map((c: any) => c.text || "").join("").trim();
+      liveFieldTexts.set(node.attrs.field, text);
+    }
+
+    if (Array.isArray(node.content)) node.content.forEach(walk);
+  };
+
+  (liveDoc?.content ?? []).forEach(walk);
+
+  // Step 2: compare each template field against live doc
+  const unfilled: UnfilledField[] = [];
+
+  for (const tpl of templatePlaceholders) {
+    const liveText = liveFieldTexts.get(tpl.fieldKey);
+
+    const isUnfilled =
+      liveText === undefined ||            // field not present in live doc
+      liveText === "" ||                   // empty
+      liveText === tpl.placeholderText ||  // ← KEY: exact match with template placeholder
+      isPlaceholderText(liveText);         // starts with known placeholder prefix
+
+    if (isUnfilled) {
+      unfilled.push({
+        fieldKey: tpl.fieldKey,
+        placeholderText: tpl.placeholderText,
+        sectionHeading: tpl.sectionHeading,
+      });
+    }
+  }
+
+  return unfilled;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { documentText, templateSlug } = body;
+
+    // ── 1. Parse document ──────────────────────────────────────────────────
+    let documentJson: any = null;
+
+    if (typeof documentText === "string") {
+      try { documentJson = JSON.parse(documentText); } catch { documentJson = null; }
+    } else if (typeof documentText === "object" && documentText !== null) {
+      documentJson = documentText;
+    }
+
+    // ── 2. Load template ───────────────────────────────────────────────────
+    let requiredSections: string[] = [];
+    let missingSectionsFromTemplate: string[] = [];
+    let templatePlaceholders: FieldPlaceholder[] = [];
+    let placeholderTextSet = new Set<string>();
+
+    if (templateSlug) {
+      const template = await prisma.template.findUnique({
+        where: { slug: templateSlug },
+      });
+
+      if (template?.contentJsonTemplate) {
+        const baseDoc =
+          (template.contentJsonTemplate as any).standard ??
+          template.contentJsonTemplate;
+
+        requiredSections = extractRequiredSections(baseDoc);
+        templatePlaceholders = extractTemplatePlaceholders(baseDoc);
+        placeholderTextSet = new Set(templatePlaceholders.map((p) => p.placeholderText));
+
+        if (documentJson) {
+          const existingHeadings = extractExistingHeadings(documentJson);
+          missingSectionsFromTemplate = requiredSections.filter(
+            (r) => !existingHeadings.some((e) => e.includes(r.toLowerCase())),
+          );
+        }
+      }
+    }
+
+    // ── 3. Detect unfilled fields (template comparison — deterministic) ────
+    const unfilledFields = documentJson
+      ? detectUnfilledByTemplateComparison(documentJson, templatePlaceholders)
+      : [];
+
+    // Group by section heading for display
+    const unfilledBySectionMap = new Map<string, UnfilledField[]>();
+    for (const f of unfilledFields) {
+      const list = unfilledBySectionMap.get(f.sectionHeading) ?? [];
+      list.push(f);
+      unfilledBySectionMap.set(f.sectionHeading, list);
+    }
+
+    // ── 4. Extract CLEAN text for AI (placeholder paragraphs stripped out) ─
+    const finalText = documentJson
+      ? extractTextFromJson(documentJson, placeholderTextSet)
+      : "";
+
+    // ── 5. AI risk analysis ────────────────────────────────────────────────
+    const openai = new OpenAI({
+      apiKey: process.env.OPENROUTER_API_KEY,
+      baseURL: "https://openrouter.ai/api/v1",
+      defaultHeaders: {
+        "HTTP-Referer": "http://localhost:3000",
+        "X-Title": "Formyxa",
+      },
+    });
+
+    const expectedClauseList =
+      requiredSections.length > 0
+        ? requiredSections.map((s) => `- ${s}`).join("\n")
+        : "- Scope of Work\n- Payment Terms\n- Termination";
+
+    const prompt = `
+You are a senior commercial contract risk analyst.
+
+Document type: ${templateSlug || "General Contract"}
+
+REQUIRED SECTIONS FOR THIS TEMPLATE:
+${expectedClauseList}
+
+SECTIONS STRUCTURALLY ABSENT FROM DOCUMENT:
+${missingSectionsFromTemplate.length > 0 ? missingSectionsFromTemplate.map((s) => `- ${s}`).join("\n") : "None"}
+
+STRICT RULES:
+1. Sections listed as structurally absent MUST appear in missingClauses.
+2. Only mark a clause "weak" if it has REAL content but lacks adequate protection.
+3. Do NOT suggest clauses outside the required sections for this template type.
+4. Do NOT suggest generic legal boilerplate (Confidentiality, IP Rights) unless in the required list above.
+5. Return strict JSON only.
+
+SCORING: 1-3 = Strong, 4-6 = Moderate, 7-8 = Significant gaps, 9-10 = Major deficiencies
+
+{
+  "riskScore": 1-10,
+  "missingClauses": [{ "title": "", "reason": "" }],
+  "weakClauses": [{ "section": "", "issue": "", "riskLevel": "Low | Medium | High" }],
+  "commercialImprovements": [{ "suggestion": "", "impact": "" }]
+}
+
+Contract text:
+${finalText.slice(0, 4000) || "(Document has not been filled in yet)"}
+`;
+
+    let parsed: any = { riskScore: 5, missingClauses: [], weakClauses: [], commercialImprovements: [] };
+
+    try {
+      const completion = await openai.chat.completions.create({
+        model: "openai/gpt-4o-mini",
+        temperature: 0.1,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: "You are a deterministic contract risk engine. Return strict JSON only." },
+          { role: "user", content: prompt },
+        ],
+      });
+      parsed = JSON.parse(completion.choices[0]?.message?.content || "{}");
+    } catch (aiErr) {
+      console.error("[review-contract] AI call failed:", aiErr);
+    }
+
+    parsed.missingClauses = parsed.missingClauses ?? [];
+    parsed.weakClauses = parsed.weakClauses ?? [];
+    parsed.commercialImprovements = parsed.commercialImprovements ?? [];
+
+    // ── 6. Force-add structurally absent sections ──────────────────────────
+    const aiMissingTitles = new Set(
+      parsed.missingClauses.map((m: any) => m.title.toLowerCase()),
+    );
+
+    for (const absent of missingSectionsFromTemplate) {
+      if (!aiMissingTitles.has(absent.toLowerCase())) {
+        parsed.missingClauses.push({
+          title: absent,
+          reason: "This required section is structurally absent from the document.",
+        });
+        aiMissingTitles.add(absent.toLowerCase());
+      }
+    }
+
+    // ── 7. Force-add unfilled sections — DETERMINISTIC, no AI needed ───────
+    // This runs regardless of what the AI said. If we detected an unfilled field
+    // by comparing live text against template placeholder text, it ALWAYS appears here.
+    for (const [sectionHeading, fields] of unfilledBySectionMap.entries()) {
+      const key = sectionHeading.toLowerCase();
+
+      // Skip if already covered (exact or partial title match)
+      const alreadyListed = parsed.missingClauses.some((m: any) => {
+        const mKey = m.title.toLowerCase();
+        return mKey === key || mKey.includes(key) || key.includes(mKey);
+      });
+      if (alreadyListed) continue;
+
+      const fieldNames = fields.map((f) => f.fieldKey.replace(/_/g, " ")).join(", ");
+      parsed.missingClauses.push({
+        title: sectionHeading,
+        reason: `Not filled in yet — still showing placeholder text (field${fields.length > 1 ? "s" : ""}: ${fieldNames}).`,
+      });
+    }
+
+    // ── 8. Bump risk score if there are unfilled fields ────────────────────
+    const unfilledCount = unfilledBySectionMap.size;
+    if (unfilledCount > 0 && parsed.riskScore < 4) {
+      parsed.riskScore = Math.min(10, 4 + Math.round(unfilledCount * 0.5));
+    }
+
+    return NextResponse.json(parsed);
+
+  } catch (err) {
+    console.error("Review Contract Error:", err);
+    return NextResponse.json({ error: "AI review failed" }, { status: 500 });
+  }
+}

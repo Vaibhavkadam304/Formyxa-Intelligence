@@ -3,48 +3,58 @@
 export const runtime = "nodejs";
 
 // Helper: make sure header values (like filename) don't contain
-// characters that break ByteString (e.g. en dash “–”, smart quotes, ₹, etc.)
+// characters that break ByteString (e.g. en dash "–", smart quotes, ₹, etc.)
 function sanitizeForHeader(value) {
   if (!value) return "";
-
   return value
     .normalize("NFKD")
-    // Keep only basic printable ASCII (space to ~); replace others with "_"
     .replace(/[^\x20-\x7E]/g, "_");
 }
 
+/**
+ * Recursively walk the Tiptap JSON and convert non-standard inline nodes
+ * into plain text/mark nodes that python-docx understands.
+ *
+ * Handled here (so Flask never needs to know about them):
+ *   • formyxaField  → text node (value or "[Label]" placeholder)
+ *   • placeholderInline → text node (unchanged behaviour)
+ */
 function prepareDocForExport(node) {
   if (!node || typeof node !== "object") return node;
+  if (Array.isArray(node)) return node.map(prepareDocForExport);
 
-  if (Array.isArray(node)) {
-    return node.map(prepareDocForExport);
-  }
-
-  // 🔥 Convert placeholderInline → text
-  if (node.type === "placeholderInline") {
-    const value = node.attrs?.value?.trim();
+  // ── formyxaField → text ──────────────────────────────────────────────────
+  if (node.type === "formyxaField") {
+    const attrs   = node.attrs ?? {};
+    const value   = (attrs.value ?? "").trim();
+    const label   = (attrs.label ?? "Field").trim();
+    const isBold  = !!attrs.bold;
 
     return {
       type: "text",
-      text: value && value.length > 0
-        ? value
-        : "____________________",
+      text: value.length > 0 ? value : `[${label}]`,
+      marks: isBold ? [{ type: "bold" }] : [],
+    };
+  }
+
+  // ── placeholderInline → text (legacy, keep unchanged) ───────────────────
+  if (node.type === "placeholderInline") {
+    const value = (node.attrs?.value ?? "").trim();
+    return {
+      type: "text",
+      text: value.length > 0 ? value : "____________________",
     };
   }
 
   const clone = { ...node };
-
   if (Array.isArray(clone.content)) {
     clone.content = clone.content.map(prepareDocForExport);
   }
-
   return clone;
 }
 
 
-
 export async function POST(req) {
-  // Explicitly pull fields we care about (including designKey)
   const {
     contentJson,
     fileName,
@@ -68,23 +78,17 @@ export async function POST(req) {
         contentJson: cleanedContentJson,
         fileName,
         templateSlug,
-        designKey, // ✅ send selected visual design
+        designKey,
         brand,
         signatory,
-        baseTemplate: "default", // optional, keeps your Flask default behaviour
+        baseTemplate: "default",
       }),
     });
   } catch (err) {
     console.error("DOCX service network error:", err);
     return new Response(
-      JSON.stringify({
-        error: "Flask export failed (network error)",
-        details: String(err),
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      },
+      JSON.stringify({ error: "Flask export failed (network error)", details: String(err) }),
+      { status: 500, headers: { "Content-Type": "application/json" } },
     );
   }
 
@@ -92,24 +96,14 @@ export async function POST(req) {
     const text = await res.text().catch(() => "");
     console.error("DOCX service error:", res.status, text);
     return new Response(
-      JSON.stringify({
-        error: "Flask export failed",
-        status: res.status,
-        details: text,
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      },
+      JSON.stringify({ error: "Flask export failed", status: res.status, details: text }),
+      { status: 500, headers: { "Content-Type": "application/json" } },
     );
   }
 
   const arrayBuffer = await res.arrayBuffer();
-  
-  // 🔧 Fix: sanitize filename so headers don't contain characters like “–” (8211)
-  let safeFileName = sanitizeForHeader(fileName || "document");
 
-  // Ensure we have a .docx extension, without doubling it
+  let safeFileName = sanitizeForHeader(fileName || "document");
   if (!safeFileName.toLowerCase().endsWith(".docx")) {
     safeFileName += ".docx";
   }

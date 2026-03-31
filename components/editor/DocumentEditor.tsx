@@ -28,6 +28,7 @@ import Underline from "@tiptap/extension-underline"
 import TextAlign from "@tiptap/extension-text-align"
 import Placeholder from "@tiptap/extension-placeholder"
 import { Node, Mark, Extension } from "@tiptap/core"; // 👈 add Extension
+import { CoverMetadataBlock } from "@/components/editor/nodes/CoverMetadataBlock";
 
 type Position = { top: number; left: number }
 
@@ -57,6 +58,7 @@ export function DocumentEditor({
       Placeholder.configure({
         placeholder: "Start typing your template here…",
       }),
+      CoverMetadataBlock,
     ],
     content: value || "",
     onUpdate({ editor }) {

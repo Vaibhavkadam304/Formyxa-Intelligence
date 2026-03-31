@@ -1,0 +1,219 @@
+"use client";
+
+import { NodeViewWrapper } from "@tiptap/react";
+import { useEffect, useRef, useState, useCallback } from "react";
+
+export function FormyxaFieldView({ node, updateAttributes }: any) {
+  const { label, value, bold } = node.attrs;
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [draft, setDraft] = useState<string>(value ?? "");
+  const [hovered, setHovered] = useState(false);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const wrapperRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (!isEditing) setDraft(value ?? "");
+  }, [value, isEditing]);
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditing]);
+
+  // Commit on outside click
+  useEffect(() => {
+    if (!isEditing) return;
+
+    const handleOutside = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        commit();
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, [isEditing, draft]);
+
+  const commit = useCallback(() => {
+    setIsEditing(false);
+    updateAttributes({ value: draft.trim() || null });
+  }, [draft, updateAttributes]);
+
+  const cancel = useCallback(() => {
+    setIsEditing(false);
+    setDraft(value ?? "");
+  }, [value]);
+
+  const displayText = value ?? "";
+  const isEmpty = !displayText;
+
+  const textStyle: React.CSSProperties = {
+    fontSize: "inherit",
+    fontFamily: "inherit",
+    fontWeight: bold ? 600 : "inherit",
+    lineHeight: "inherit",
+    color: isEmpty ? "#9ba8c2" : "inherit",
+    fontStyle: isEmpty ? "italic" : "normal",
+  };
+
+  return (
+    <NodeViewWrapper
+      as="span"
+      ref={wrapperRef}
+      contentEditable={false}
+      style={{ display: "inline", position: "relative" }}
+    >
+      {!isEditing ? (
+        /* ── DISPLAY MODE ── */
+        <span
+          role="button"
+          tabIndex={0}
+          title={`Click to edit: ${label}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            setDraft(value ?? "");
+            setIsEditing(true);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setDraft(value ?? "");
+              setIsEditing(true);
+            }
+          }}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          style={{
+            ...textStyle,
+            cursor: "text",
+            userSelect: "none",
+            paddingTop: "0px",
+            paddingRight: "0px",
+            paddingBottom: "1px",
+            paddingLeft: "0px",
+
+            borderBottom: hovered
+              ? "2px solid #4f6de8"
+              : "1px dotted #aab4c5",
+            transition: "border-color 0.15s",
+            color: hovered
+              ? "#3b54d4"
+              : isEmpty
+              ? "#9ba8c2"
+              : "inherit",
+          }}
+        >
+          {displayText || label}
+        </span>
+      ) : (
+        /* ── EDIT MODE ── */
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "4px",
+            zIndex: 50,
+          }}
+        >
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              borderBottom: "2px solid #4f6de8",
+              paddingTop: "0px",
+              paddingRight: "2px",
+              paddingBottom: "0px",
+              paddingLeft: "2px",
+
+              borderRadius: "2px 2px 0 0",
+            }}
+          >
+            <input
+              ref={inputRef}
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  commit();
+                }
+                if (e.key === "Escape") {
+                  e.preventDefault();
+                  cancel();
+                }
+                e.stopPropagation();
+              }}
+              onMouseDown={(e) => e.stopPropagation()}
+              placeholder={label}
+              style={{
+                ...textStyle,
+                border: "none",
+                outline: "none",
+                background: "transparent",
+                color: "#1e2a4a",
+                fontStyle: "normal",
+                paddingTop: "1px",
+                paddingRight: "0px",
+                paddingBottom: "1px",
+                paddingLeft: "0px",
+
+                minWidth: `${Math.max((draft || label).length, 3) + 1}ch`,
+                width: `${Math.max(draft.length || 0, label.length, 3) + 1}ch`,
+              }}
+            />
+          </span>
+
+          {/* Confirm */}
+          <button
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              commit();
+            }}
+            title="Confirm (Enter)"
+            style={{
+              width: "14px",
+              height: "14px",
+              borderRadius: "3px",
+              border: "none",
+              background: "#5c77e6",
+              color: "#fff",
+              fontSize: "9px",
+              cursor: "pointer",
+              lineHeight: 1,
+            }}
+          >
+            ✓
+          </button>
+
+          {/* Cancel */}
+          <button
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              cancel();
+            }}
+            title="Cancel (Esc)"
+            style={{
+              width: "14px",
+              height: "14px",
+              borderRadius: "3px",
+              border: "1px solid #e2e5ed",
+              background: "#f8f9fb",
+              color: "#8492a8",
+              fontSize: "9px",
+              cursor: "pointer",
+              lineHeight: 1,
+            }}
+          >
+            ✕
+          </button>
+        </span>
+      )}
+    </NodeViewWrapper>
+  );
+}

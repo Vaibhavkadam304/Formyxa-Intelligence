@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import ThemeToggle from "@/components/theme-toggle"
 
 export default function Header() {
   return (
@@ -15,7 +16,7 @@ export default function Header() {
             border border-border
           "
         >
-          {/* Logo & Brand */}
+          {/* Logo & Brand — still goes to / which redirects to /choose */}
           <Link href="/" className="flex items-center gap-2">
             <div
               className="
@@ -36,9 +37,9 @@ export default function Header() {
 
           {/* Center Navigation */}
           <div className="hidden md:flex items-center gap-5">
-            {/* Active */}
+            {/* Home now points to /home */}
             <Link
-              href="/"
+              href="/home"
               className="
                 relative text-sm font-semibold text-foreground
                 after:absolute after:left-0 after:-bottom-1
@@ -72,6 +73,7 @@ export default function Header() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-4">
+            <ThemeToggle />
 
             {/* Primary CTA */}
             <Link
@@ -99,7 +101,7 @@ export default function Header() {
               "
             >
               Sign in
-            </Link>        
+            </Link>
           </div>
         </nav>
       </div>

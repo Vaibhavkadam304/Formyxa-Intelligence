@@ -1,17 +1,5 @@
-import Header from "@/components/header"
-import Hero from "@/components/hero"
-import Features from "@/components/features"
-import CTA from "@/components/cta"
-import Footer from "@/components/footer"
+import { redirect } from "next/navigation"
 
 export default function Home() {
-  return (
-    <main className="min-h-screen bg-background">
-      <Header />
-      <Hero />
-      <Features />
-      <CTA />
-      <Footer />
-    </main>
-  )
+  redirect("/choose")
 }

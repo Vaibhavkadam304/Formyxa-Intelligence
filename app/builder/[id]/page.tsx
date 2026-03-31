@@ -40,6 +40,16 @@ export default async function BuilderPage({ params, searchParams }: PageProps) {
       ? designParam[0]
       : undefined;
 
+  /* -------------------- PRESET -------------------- */
+
+  const presetParam = search?.preset;
+  const preset =
+    typeof presetParam === "string"
+      ? presetParam
+      : Array.isArray(presetParam)
+      ? presetParam[0]
+      : "standard"; // ✅ default
+
   /* -------------------- DB -------------------- */
 
   const doc = await prisma.document.findUnique({
@@ -60,8 +70,6 @@ export default async function BuilderPage({ params, searchParams }: PageProps) {
     signatureImageUrl: vars.signature_image ?? null,
   };
 
-  /* -------------------- RESOLVE BRAND (UI ONLY) -------------------- */
-
   const pick = (v?: unknown, fallback = ""): string =>
     typeof v === "string" && v.trim().length > 0 ? v : fallback;
 
@@ -69,14 +77,8 @@ export default async function BuilderPage({ params, searchParams }: PageProps) {
     ? {
         companyName: pick(vars.company_name, brand.companyName),
         logoUrl: brand.logoUrl ?? null,
-        addressLine1: pick(
-          vars.company_address_line1,
-          brand.addressLine1
-        ),
-        addressLine2: pick(
-          vars.company_address_line2,
-          brand.addressLine2
-        ),
+        addressLine1: pick(vars.company_address_line1, brand.addressLine1),
+        addressLine2: pick(vars.company_address_line2, brand.addressLine2),
         phone: pick(vars.company_phone, brand.phone),
         email: pick(vars.company_email, brand.email),
       }
@@ -88,10 +90,11 @@ export default async function BuilderPage({ params, searchParams }: PageProps) {
     signatureImageUrl: signatory.signatureImageUrl ?? null,
   };
 
-  /* -------------------- CONTENT (STRICT) -------------------- */
+  /* -------------------- CONTENT (FIXED LOGIC) -------------------- */
 
   let initialContentJson: any = doc.contentJson ?? null;
 
+  // parse if string
   if (typeof initialContentJson === "string") {
     try {
       initialContentJson = JSON.parse(initialContentJson);
@@ -105,21 +108,61 @@ export default async function BuilderPage({ params, searchParams }: PageProps) {
     initialContentJson.type === "doc" &&
     Array.isArray(initialContentJson.content);
 
+  // 🔥 If no valid document content → load from template preset
   if (!isValidDoc) {
-    console.error(
-      "❌ Invalid or missing contentJson for document:",
-      doc.id
-    );
-    initialContentJson = EMPTY_DOC;
+    const templateJson =
+      (doc.template?.contentJsonTemplate as any)?.[preset];
+
+    if (
+      templateJson &&
+      templateJson.type === "doc" &&
+      Array.isArray(templateJson.content)
+    ) {
+      console.log(
+        `📄 Loading template preset "${preset}" for ${doc.template.slug}`
+      );
+      initialContentJson = templateJson;
+    } else {
+      console.error(
+        `❌ Missing preset "${preset}" in template ${doc.template.slug}`
+      );
+      initialContentJson = EMPTY_DOC;
+    }
+  }
+
+  // Debug: surface resolved content/template info during server render
+  try {
+    const preview =
+      typeof initialContentJson === "string"
+        ? initialContentJson.slice(0, 200)
+        : JSON.stringify(initialContentJson).slice(0, 200);
+
+    console.log("[BuilderPage debug]", {
+      docId: doc.id,
+      templateSlug: doc.template?.slug,
+      preset,
+      isValidDoc,
+      initialContentJsonPreview: preview,
+    });
+  } catch (err) {
+    console.log("[BuilderPage debug] unable to stringify initialContentJson", err);
   }
 
   /* -------------------- RENDER -------------------- */
+
+  const templateContentJson =
+    (doc.template?.contentJsonTemplate as any)?.[preset] ??
+    doc.template?.contentJsonTemplate;
 
   return (
     <BuilderClient
       docId={doc.id}
       title={doc.title}
       initialContentJson={initialContentJson}
+      templateContentJson={
+        (doc.template?.contentJsonTemplate as any)?.[preset] ??
+        doc.template?.contentJsonTemplate
+      }
       templateSlug={doc.template.slug}
       brand={resolvedBrand}
       signatory={effectiveSignatory}

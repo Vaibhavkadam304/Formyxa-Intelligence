@@ -5,52 +5,52 @@ import Image from "next/image"
 
 const featureTabs = [
   {
-    id: "structured",
-    label: "Create structured docs",
-    title: "Create high-quality documents faster",
+    id: "scope",
+    label: "Define scope clearly",
+    title: "Break projects into enforceable sections",
     bullets: [
-      "Convert rough input into clearly defined sections",
-      "Use predefined document structures like offer letters and policies",
-      "AI assists within structure, not free-form writing",
+      "Separate deliverables from assumptions and exclusions",
+      "Clearly define timelines, milestones, and revision limits",
+      "AI assists within structured guardrails — not free-form drafting",
     ],
-    image: "/images/formyxa-editor1.png",
-    caption: "Structured outline with enforced sections",
+    image: "/images/formyxa-editor1.jpg",
+    caption: "Structured scope with defined boundaries and responsibilities",
   },
   {
-    id: "standards",
-    label: "Enforce company standards",
-    title: "One canonical version for every document",
+    id: "guardrails",
+    label: "Enforce guardrails",
+    title: "Built-in protection against scope creep",
     bullets: [
-      "Company-approved wording and structure",
-      "Prevent accidental or unsafe edits",
-      "Reuse the same document safely at scale",
+      "Predefined scope, payment, and change policies",
+      "Structured clauses for revisions and overages",
+      "Prevent vague or risky wording before it becomes a problem",
     ],
     image: "/images/formyxa-editor2.png",
-    caption: "Company-approved structure applied automatically",
+    caption: "Company-approved guardrails applied automatically",
   },
   {
     id: "editing",
     label: "Edit safely",
-    title: "Edit in a familiar, safe editor",
+    title: "Flexible editing with structural protection",
     bullets: [
-      "Google-Docs–style editing experience",
-      "Teams can edit without breaking structure",
-      "Track changes and collaboration-ready",
+      "Familiar editing experience with protected sections",
+      "Make changes without expanding scope accidentally",
+      "Maintain clarity across revisions and updates",
     ],
     image: "/images/formyxa-editor3.png",
-    caption: "Editable content with locked structural sections",
+    caption: "Editable content with protected structural sections",
   },
   {
     id: "export",
-    label: "Export official output",
-    title: "Export-ready, official documents",
+    label: "Lock & export",
+    title: "Finalize contracts with confidence",
     bullets: [
       "Generate clean DOCX and PDF files",
-      "Preserve formatting and structure",
-      "Ready for sharing, signing, or archiving",
+      "Signature-ready formatting",
+      "Version-safe, export-ready agreements",
     ],
     image: "/images/formyxa-editor4.png",
-    caption: "Export-ready, compliant documents",
+    caption: "Locked, export-ready agreements",
   },
 ]
 
@@ -58,30 +58,16 @@ export default function Features() {
   const [activeTab, setActiveTab] = useState(featureTabs[0])
 
   return (
-    <section
-      id="features"
-      className="
-        relative
-        py-24
-        pt-20
-        bg-gradient-to-b
-        from-background
-        via-muted/40
-        to-background
-      "
-    >
-      {/* soft section background */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-muted/50 via-background to-background" />
-
+    <section id="features" className="relative py-24 pt-20 bg-background">
       <div className="mx-auto max-w-6xl px-6">
 
         {/* Heading */}
         <div className="mb-12 text-center">
           <h2 className="text-3xl md:text-4xl font-semibold leading-tight md:leading-[1.15] text-foreground">
-            Built for structured, real-world documents
+            Structure That Protects Your Revenue
           </h2>
           <p className="mt-3 max-w-2xl mx-auto text-muted-foreground">
-            Turn rough input into structured, reusable company documents.
+            Turn client conversations into structured, enforceable agreements with built-in guardrails.
           </p>
         </div>
 
@@ -139,16 +125,16 @@ export default function Features() {
               <Image
                 key={activeTab.image}
                 src={activeTab.image}
-                alt="Formyxa document editor"
+                alt="Formyxa contract editor"
                 width={600}
                 height={400}
                 className="rounded-lg"
               />
 
-              {/* floating governance badge */}
+              {/* floating protection badge */}
               <div className="
                 absolute -bottom-5 right-6
-                w-[220px]
+                w-[240px]
                 rounded-lg
                 bg-card
                 p-3
@@ -165,10 +151,10 @@ export default function Features() {
                   ">
                     ✓
                   </span>
-                  Approved structure
+                  Scope Guard: Active
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Editing within company-defined sections
+                  Protected sections prevent accidental scope expansion
                 </p>
               </div>
             </div>

@@ -8,31 +8,30 @@ import { TextStyle } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import Highlight from "@tiptap/extension-highlight";
 import { Node, Mark, Extension } from "@tiptap/core";
-import type { Content } from "@tiptap/core";
+import FontFamily from "@tiptap/extension-font-family";
+import Bold from "@tiptap/extension-bold";
+import { FormyxaFieldView } from "./nodes/FormyxaFieldView";
 import { Table } from "@tiptap/extension-table";
-import { TableRow } from "@tiptap/extension-table-row";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableCell } from "@tiptap/extension-table-cell";
-
+import { ReactNodeViewRenderer } from "@tiptap/react";
 import { ResizableImage } from "./ResizableImage";
+  import { SemanticBlock } from "./nodes/SemanticBlock";
+import { DataBlock } from "./nodes/DataBlock";
 
 import type { BrandProfile, SignatoryProfile } from "@/types/doc-layout";
 import { getLayoutForTemplateSlug } from "@/lib/docLayout";
 import { DocumentPageShell } from "./DocumentPageShell";
-import { LineHeight } from "@/components/editor/extensions/LineHeight";
-import type { Command } from "@tiptap/core";
+ 
 type EditorViewMode = "document" | "blog";
 
 type JsonEditorProps = {
   initialDoc: any;
-
-  /* OPTIONAL — editor mode only */
-  fileName?: string;
-  onFileNameChange?: (name: string) => void;
-  onDocChange?: (doc: any) => void;
-  onExport?: (doc: any, fileName: string) => Promise<void>;
+  fileName: string;
+  onFileNameChange: (name: string) => void;
+  onDocChange: (doc: any) => void;
+  onExport: (doc: any, fileName: string) => Promise<void>;
   onSave?: (doc: any, fileName: string) => Promise<void>;
-
   initialMode?: EditorViewMode;
 
   templateSlug?: string;
@@ -40,47 +39,47 @@ type JsonEditorProps = {
   brand?: BrandProfile;
   signatory?: SignatoryProfile;
 
+  /** NEW */
   chrome?: "full" | "canvas";
-  zoom?: number;
+  zoom?: number; // controlled zoom
   onZoomChange?: (z: number) => void;
   onEditorReady?: (editor: any) => void;
-
-  /** 🔑 NEW */
-  editable?: boolean;
+  onEditHeader?: () => void; // ✅ ADD
+  variables?: Record<string, any>; // ✅ ADD THIS
+  placeholderSchema?: Record<string, { label: string }>
 };
 
 // ---------------------------------------------------------------------
 const DEFAULT_DOC = {
   type: "doc",
-  content: [{ type: "paragraph" }],
+  content: []
 };
 
 function stripEmptyTextNodes(node: any): any {
   if (!node || typeof node !== "object") return node;
 
   if (Array.isArray(node)) {
-    const processed = node.map(stripEmptyTextNodes).filter((child) => child != null);
-    return processed;
+    return node
+      .map(stripEmptyTextNodes)
+      .filter((child) => child != null);
   }
 
   const clone: any = { ...node };
 
   if (clone.type === "text") {
-    const text = clone.text;
-    if (typeof text !== "string" || text.length === 0) return null;
+    if (!clone.text || clone.text.length === 0) return null;
     return clone;
   }
 
   if (Array.isArray(clone.content)) {
-    clone.content = clone.content.map(stripEmptyTextNodes).filter((child: any) => child != null);
-  }
-
-  if (Array.isArray(clone.marks)) {
-    clone.marks = clone.marks.map(stripEmptyTextNodes).filter((m: any) => m != null);
+    clone.content = clone.content
+      .map(stripEmptyTextNodes)
+      .filter((child: any) => child != null);
   }
 
   return clone;
 }
+
 
 function normalizeDoc(doc: any): any {
   if (!doc) return DEFAULT_DOC;
@@ -170,12 +169,11 @@ const UnderlineMark = Mark.create({
   addCommands() {
     return {
       toggleUnderline:
-        (): Command =>
+        () =>
         ({ commands }) =>
           commands.toggleMark(this.name),
-    };
-  }
-
+    } as any;
+  },
 });
 
 // ---------------------------------------------------------------------
@@ -201,6 +199,119 @@ const BetterListEnter = Extension.create({
   },
 });
 
+
+
+
+// ---------------------------------------------------------------------
+// Signature Block (STRUCTURAL ONLY)
+// ---------------------------------------------------------------------
+const SignaturesBlock = Node.create({
+  name: "signaturesBlock",
+  group: "block",
+  atom: true,
+  selectable: false,
+
+  parseHTML() {
+    return [{ tag: "div[data-signatures-block]" }];
+  },
+
+  renderHTML() {
+    return [
+      "div",
+      {
+        "data-signatures-block": "true",
+        class: "signatures-block",
+      },
+    ];
+  },
+});
+
+function transformTextPlaceholdersToNodes(
+  node: any,
+  placeholderSchema?: Record<string, { label: string }>
+): any {
+  if (!node || typeof node !== "object") return node;
+
+  if (Array.isArray(node)) {
+    return node.map((child) =>
+      transformTextPlaceholdersToNodes(child, placeholderSchema)
+    );
+  }
+
+  const cloned: any = { ...node };
+
+  if (cloned.type === "text" && typeof cloned.text === "string") {
+    // const match = cloned.text.trim().match(/^\{(.+?)\}$/);
+    const match = cloned.text.trim().match(/^\{\{(.+?)\}\}$/);
+
+    if (match) {
+      const label = match[1];
+      const key = placeholderSchema
+        ? Object.entries(placeholderSchema).find(
+            ([_, meta]) => meta.label === label
+          )?.[0]
+        : undefined;
+
+      return {
+        type: "formyxaField",
+        attrs: {
+          key: key ?? label,
+          label,
+          value: null,
+          required: false,
+        },
+      };
+
+    }
+  }
+
+  if (Array.isArray(cloned.content)) {
+    cloned.content = cloned.content.map((child: any) =>
+      transformTextPlaceholdersToNodes(child, placeholderSchema)
+    );
+  }
+
+  return cloned;
+}
+
+ const FormyxaField = Node.create({
+    name: "formyxaField",
+    inline: true,
+    group: "inline",
+    atom: true,
+    selectable: true,
+
+    addAttributes() {
+      return {
+        key: { default: "" },
+        label: { default: "" },
+        value: { default: null },
+        required: { default: false },
+        bold: { default: false },
+      };
+    },
+
+    parseHTML() {
+      return [{ tag: "span[data-formyxa-field]" }];
+    },
+
+    renderHTML({ node }) {
+      return [
+        "span",
+        {
+          "data-formyxa-field": "true",
+          "data-key": node.attrs.key,
+          "data-label": node.attrs.label,
+        },
+        0,
+      ];
+    },
+
+    addNodeView() {
+      return ReactNodeViewRenderer(FormyxaFieldView);
+    },
+  });
+
 // ---------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------
@@ -216,16 +327,17 @@ export function JsonEditor({
   designKey,
   brand,
   signatory,
-
+  variables, // ✅ ADD THIS
+  placeholderSchema, // ✅ ADD THIS
   chrome = "full",
   zoom: zoomProp,
   onZoomChange,
   onEditorReady,
-  editable = true, // ✅ default true
+  onEditHeader,
 }: JsonEditorProps) {
   const safeInitialDoc = useMemo(() => normalizeDoc(initialDoc), [initialDoc]);
   const isCanvas = chrome === "canvas";
-  const isReadOnly = !editable;
+
   const [localFileName, setLocalFileName] = useState(fileName);
   const [docJson, setDocJson] = useState<any>(safeInitialDoc);
 
@@ -237,39 +349,88 @@ export function JsonEditor({
   const [exporting, setExporting] = useState(false);
   const [viewMode, setViewMode] = useState<EditorViewMode>(initialMode ?? "document");
 
-  const layout = useMemo(() => getLayoutForTemplateSlug(templateSlug, designKey), [templateSlug, designKey]);
+  const effectiveDesignKey = designKey ?? undefined;
+
+  const layout = useMemo(
+    () => getLayoutForTemplateSlug(templateSlug, effectiveDesignKey),
+    [templateSlug, effectiveDesignKey]
+  );
   const hasInitializedRef = useRef(false);
+  ///////////////////////
+
+
+  const SectionNode = SemanticBlock("section");
+  const MetadataNode = SemanticBlock("metadata");
+
+  const TimelineNode = DataBlock("timeline");
+  const ActionItemsNode = DataBlock("action_items");
+  //////////////////////
+  
+  function getUnderlineWidth(label: string) {
+    const charCount = label.length;
+
+    // roughly 1ch per 1 character, clamped
+    const width = Math.min(Math.max(charCount * 1.1, 80), 220);
+
+    return `min-w-[${Math.round(width)}px]`;
+  }
+
+ 
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({ bold: false }),
+      Bold,
+      
+
+      // ✅ ADD THESE FOUR (ORDER MATTERS: keep them early)
+   
+      MetadataNode,
+      SectionNode,
       BetterListEnter,
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
-      TextStyle,
-      Color,
-      Highlight,
-      LineHeight, // ✅ add this
-
-      Table.configure({ resizable: true }),
-      TableRow,
-      TableHeader,
-      TableCell,
-
+     
       ResizableImage.configure({ inline: false, allowBase64: false }),
+      SignaturesBlock,
 
-      FontSizeMark,
-      UnderlineMark,
-      PageBreak,
+      FormyxaField,
     ],
+
     content: DEFAULT_DOC,
-    editable: editable ?? true,
+    editable: true,
     immediatelyRender: false,
+
     onUpdate: ({ editor }) => {
+      const { state } = editor;
+      const { selection } = state;
+
+      // only when user is typing (not initial load)
+      if (selection?.from !== selection?.to) {
+        const $from = selection.$from;
+        const parent = $from.parent;
+
+        if (
+          parent.type.name === "paragraph" &&
+          parent.textContent.startsWith("__FAKE__")
+        ) {
+          const pos = $from.before();
+
+          editor.commands.command(({ tr }) => {
+            tr.delete(pos, pos + parent.nodeSize);
+            tr.insertText("");
+            return true;
+          });
+
+          return;
+        }
+      }
+
       const json = editor.getJSON();
       setDocJson(json);
-      onDocChange?.(json);
+      onDocChange(json);
     },
+
   });
+
 
   // expose editor to parent
   useEffect(() => {
@@ -277,19 +438,51 @@ export function JsonEditor({
   }, [editor, onEditorReady]);
 
   // init content once
+useEffect(() => {
+  if (!editor) return;
+  if (!safeInitialDoc) return;
+  if (hasInitializedRef.current) return;
+
+  try {
+    // 1️⃣ Clean empty text nodes first
+    const cleanedDoc = stripEmptyTextNodes(safeInitialDoc);
+
+    // 2️⃣ Convert {Label} → placeholderInline nodes
+    const transformedDoc = transformTextPlaceholdersToNodes(
+      cleanedDoc,
+      placeholderSchema,
+    );
+
+    editor.commands.setContent(transformedDoc as any, false);
+    setDocJson(transformedDoc);
+    hasInitializedRef.current = true;
+  } catch (err) {
+    console.error("Failed to init editor content", err);
+  }
+}, [editor, safeInitialDoc, placeholderSchema]);
+
+
+  // ---------------------------------------------------------------------
+// Auto insert signature block when signatory exists
+// ---------------------------------------------------------------------
   useEffect(() => {
     if (!editor) return;
-    if (!safeInitialDoc) return;
-    if (hasInitializedRef.current) return;
 
-    try {
-      editor.commands.setContent(safeInitialDoc as any, false);
-      setDocJson(safeInitialDoc);
-      hasInitializedRef.current = true;
-    } catch {
-      // ignore
+    // No signatory data → do nothing
+    if (!signatory?.fullName && !signatory?.signatureUrl) return;
+
+    const json = editor.getJSON()
+
+    const hasSignatureBlock = (json.content ?? []).some(
+      (n) => n.type === "signaturesBlock"
+    )
+
+    if (!hasSignatureBlock) {
+      editor.commands.insertContent({
+        type: "signaturesBlock",
+      });
     }
-  }, [editor, safeInitialDoc]);
+  }, [editor, signatory]);
 
   useEffect(() => setLocalFileName(fileName), [fileName]);
 
@@ -299,19 +492,14 @@ export function JsonEditor({
     if (!editor) return;
     editor.commands.setContent(safeInitialDoc);
     setDocJson(safeInitialDoc);
-    onDocChange?.(safeInitialDoc);
+    onDocChange(safeInitialDoc);
   };
 
   const handleExportClick = async () => {
     if (!docJson) return;
     try {
       setExporting(true);
-      if (!onExport) return;
-      await onExport(
-        docJson,
-        localFileName || fileName || "Document"
-      );
-
+      await onExport(docJson, localFileName || fileName);
     } finally {
       setExporting(false);
     }
@@ -319,11 +507,12 @@ export function JsonEditor({
 
   const handleSaveClick = async () => {
     if (!onSave || !docJson) return;
-
-    await onSave(
-      docJson,
-      localFileName || fileName || "Document"
-    );
+    try {
+      setSaving(true);
+      await onSave(docJson, localFileName || fileName);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleZoomChange = (value: number) => {
@@ -334,7 +523,7 @@ export function JsonEditor({
   const handleFileNameInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const next = e.target.value;
     setLocalFileName(next);
-    onFileNameChange?.(next);
+    onFileNameChange(next);
   };
 
   const effectiveMode: EditorViewMode = isCanvas ? "document" : viewMode;
@@ -342,21 +531,24 @@ export function JsonEditor({
   // -------------------- CANVAS (Figma-style) --------------------
   if (isCanvas) {
     return (
-      <div className="flex-1 overflow-y-auto p-0">
+      <div className="flex-1 overflow-visible px-4 py-8">
         <div id="formyxa-doc-top" />
-        <div className="max-w-[8.5in] mx-auto">
+        <div className="max-w-[780px] mx-auto">
           {layout.shellVariant === "page" ? (
             editor ? (
-              <DocumentPageShell
-                editor={editor}
-                layout={layout}
-                brand={brand}
-                signatory={signatory}
-                title={fileName}
-                zoom={zoom}
-              />
+              <div className={`offer-root ${effectiveDesignKey}`}>
+                <DocumentPageShell
+                  editor={editor}
+                  layout={layout}
+                  brand={brand}
+                  signatory={signatory}
+                  title={fileName}
+                  zoom={zoom}
+                  onEditHeader={onEditHeader}
+                />
+              </div>
             ) : (
-              <div className="bg-white rounded-2xl shadow-lg p-16 min-h-[11in] flex items-center justify-center">
+              <div className="bg-white rounded-2xl shadow-lg px-14 py-12 min-h-[11in] flex items-center justify-center">
                 <p className="text-sm text-slate-400">Loading…</p>
               </div>
             )
@@ -376,7 +568,6 @@ export function JsonEditor({
   // -------------------- FULL (old standalone) --------------------
   return (
     <div className="flex flex-col h-full">
-    {!isReadOnly && ( 
       <header className="border-b bg-white flex items-center justify-between px-6 py-2">
         <div className="flex items-center gap-3">
           <input
@@ -437,21 +628,21 @@ export function JsonEditor({
           </button>
         </div>
       </header>
-    )}
-
 
       {effectiveMode === "document" ? (
-        <main className="flex-1 flex justify-center items-start overflow-auto py-6 px-3 bg-slate-50">
+        <main className="flex-1 flex justify-center items-start py-6 px-3 bg-slate-50">
           <div className="bg-slate-200/80 rounded-xl p-4">
             {layout.shellVariant === "page" ? (
               editor ? (
-                <DocumentPageShell
+               <DocumentPageShell
                   editor={editor}
                   layout={layout}
                   brand={brand}
                   signatory={signatory}
                   title={fileName}
                   zoom={zoom}
+                  variables={variables}   // ✅ ADD
+                  onEditHeader={onEditHeader}
                 />
               ) : (
                 <div className="bg-white rounded-md mx-auto w-[794px] min-h-[1123px] flex items-center justify-center">
@@ -460,7 +651,7 @@ export function JsonEditor({
               )
             ) : (
               <div
-                className="bg-white shadow-[0_0_0_1px_rgba(15,23,42,0.06),0_18px_40px_rgba(15,23,42,0.08)] rounded-md mx-auto w-[794px] min-h-[1123px] px-14 py-10 flex flex-col"
+                className="bg-white shadow-[0_0_0_1px_rgba(15,23,42,0.06),0_18px_40px_rgba(15,23,42,0.08)] rounded-md mx-auto w-[794px] min-h-[1123px] px-16 py-12 flex flex-col"
                 style={{ transform: `scale(${zoom})`, transformOrigin: "top left" }}
               >
                 {editor ? <EditorContent editor={editor} className="tiptap" /> : <p className="text-sm text-slate-400">Loading…</p>}
@@ -470,7 +661,7 @@ export function JsonEditor({
         </main>
       ) : (
         <main className="flex-1 flex overflow-hidden bg-slate-50">
-          <div className="flex-1 overflow-auto py-6 px-4">
+          <div className="flex-1 py-6 px-4">
             <div className="max-w-3xl mx-auto">
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-8">
                 {editor ? <EditorContent editor={editor} className="tiptap" /> : <p className="text-sm text-slate-400">Loading…</p>}

@@ -18,6 +18,8 @@ export type TemplateConfig = {
   /** If false, do not show this template as a separate card on /choose */
   showInCategoryGrid?: boolean
 }
+
+
 export const TEMPLATE_CATEGORIES: TemplateCategory[] = [
 
   {
@@ -38,21 +40,52 @@ export const TEMPLATE_CATEGORIES: TemplateCategory[] = [
 // Later you can create dedicated prisma Template rows and
 // change backendSlug per template.
 export const TEMPLATES: TemplateConfig[] = [
- 
+
   // HR & corporate
   {
-    slug: "offer-letter-standard",           // 👈 UI slug (and used in /new?template=…)
-    backendSlug: "offer-letter-standard",    // 👈 MUST match Prisma Template.slug
+    slug: "offer-letter-standard",
+    backendSlug: "offer-letter-standard",
     categoryId: "hr-corporate",
     title: "Job offer letter",
     description:
       "Formal job offer letter with role, CTC, start date, probation and notice period.",
     examplePrompt:
-      "I want to send a formal offer letter to candidate Rahul Sharma for the role of Senior Marketing Specialist at our Mumbai office. CTC is ₹18 LPA, start date 1st March 2026, 6-month probation and 60-day notice period.",
-    // optional:
-    // previewImage: "/previews/offer-letter-standard.png",
+      "I want to send a formal offer letter to candidate Rahul Sharma...",
+  },
+
+  // 🔥 ADD THIS
+  {
+    slug: "anti-scope-creep-sow-core",
+    backendSlug: "anti-scope-creep-sow-core", // MUST match Prisma seed
+    categoryId: "hr-corporate", // or create new category later
+    title: "Anti-Scope Creep SOW",
+    description:
+      "Structured scope of work template with locked exclusions and revision limits.",
+    examplePrompt:
+      "Create a scope of work for a website redesign project including 3 landing pages and 2 rounds of revisions.",
+  },
+  {
+    slug: "creative-retainer-agreement-core",  // frontend slug
+    backendSlug: "creative-retainer-agreement-core", // MUST match Prisma seed
+    categoryId: "hr-corporate", // or create a new category (recommended)
+    title: "Creative Retainer Agreement",
+    description:
+      "Monthly creative services agreement with payment protection, IP ownership clarity and termination safeguards.",
+    examplePrompt:
+      "Create a 6-month creative retainer agreement for social media design and video editing services.",
+  },
+  {
+    slug: "master-service-agreement-core",
+    backendSlug: "master-service-agreement-core", // MUST match Prisma seed
+    categoryId: "hr-corporate",
+    title: "Master Service Agreement",
+    description:
+      "Comprehensive MSA with IP ownership leverage, kill-fee termination, liability cap, non-solicitation, and governing law.",
+    examplePrompt:
+      "Create a Master Service Agreement between my agency PixelForge Studio and client NovaTech AI Solutions.",
   },
 ];
+
 
 export function getTemplatesForCategory(categoryId: string): TemplateConfig[] {
   return TEMPLATES.filter(

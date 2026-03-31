@@ -1,0 +1,240 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+
+import Header from "@/components/header"
+import Footer from "@/components/footer"
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
+
+/* ---------------- INCIDENT CATEGORIES ---------------- */
+
+type IncidentCategory = {
+  id: string
+  label: string
+  description: string
+  icon: string
+}
+
+const INCIDENT_CATEGORIES: IncidentCategory[] = [
+  {
+    id: "reliability",
+    label: "Reliability & Availability",
+    description:
+      "Outages, degradations, incidents affecting system reliability.",
+    icon: "🧠",
+  },
+  {
+    id: "security",
+    label: "Security Operations",
+    description:
+      "Security breaches, vulnerabilities, and incident response.",
+    icon: "🔐",
+  },
+  {
+    id: "compliance",
+    label: "Compliance & Audit",
+    description:
+      "Audit findings, policy violations, and corrective actions.",
+    icon: "📋",
+  },
+]
+
+/* ---------------- PAGE ---------------- */
+
+export default function HomeEntryPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const [selectedCategoryId, setSelectedCategoryId] =
+    useState<string | null>(null)
+
+  const [openReliabilityChoice, setOpenReliabilityChoice] = useState(false)
+
+  useEffect(() => {
+    const fromQuery = searchParams.get("category")
+    if (fromQuery) setSelectedCategoryId(fromQuery)
+  }, [searchParams])
+
+  /* ---------- UI ---------- */
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+
+      <main className="mx-auto max-w-6xl px-4 pt-28 pb-20 space-y-12">
+
+        {/* -------- HEADER -------- */}
+        <section className="text-center space-y-3">
+          <p className="text-xs font-medium tracking-widest uppercase text-muted-foreground">
+            🧭 Home / Entry
+          </p>
+
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
+            Start an operational incident
+          </h1>
+
+          <p className="text-sm text-muted-foreground max-w-xl mx-auto">
+            Standardized incident entry points used by engineering and
+            operations teams.
+          </p>
+
+          <p className="text-xs text-muted-foreground max-w-xl mx-auto">
+            Designed for SREs, on-call engineers, security analysts, and
+            compliance operations.
+          </p>
+        </section>
+
+        {/* -------- CATEGORY GRID -------- */}
+        <section>
+          <div className="rounded-2xl border border-border bg-muted/30 px-6 py-8">
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+
+              {INCIDENT_CATEGORIES.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    if (cat.id === "reliability") {
+                      setOpenReliabilityChoice(true)
+                      return
+                    }
+                    router.push(`/incident/${cat.id}`)
+                  }}
+                  className="
+                    relative group h-[200px]
+                    rounded-xl border p-5 text-left transition
+                    bg-card border-border hover:-translate-y-0.5 hover:shadow-sm
+                  "
+                >
+                  {/* Primary category accent */}
+                  {cat.id === "reliability" && (
+                    <div className="absolute inset-x-0 top-0 h-0.5 bg-primary/70 rounded-t-xl" />
+                  )}
+
+                  {/* Icon */}
+                  <div className="text-2xl opacity-80">
+                    {cat.icon}
+                  </div>
+
+                  <h3 className="mt-4 text-sm font-semibold text-foreground">
+                    {cat.label}
+                  </h3>
+
+                  <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                    {cat.description}
+                  </p>
+
+                  {cat.id === "reliability" && (
+                    <div className="mt-4 text-[11px] text-muted-foreground">
+                      Investigate outages and incidents →
+                    </div>
+                  )}
+                </button>
+              ))}
+
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* -------- MODAL -------- */}
+      <Dialog open={openReliabilityChoice} onOpenChange={setOpenReliabilityChoice}>
+        <DialogContent className="max-w-lg p-6">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold tracking-tight">
+              Start a reliability incident
+            </DialogTitle>
+            <DialogDescription className="text-sm">
+              Choose how you want to document and analyze the incident.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-6 grid gap-5">
+
+            {/* RCA */}
+            <button
+              onClick={() => {
+                setOpenReliabilityChoice(false)
+                router.push("/incident/postmortem")
+              }}
+              className="
+                group relative w-full rounded-xl
+                border border-primary/20
+                bg-primary/3 p-6 text-left
+                transition hover:border-primary/40
+              "
+            >
+              <span
+                className="
+                  absolute right-4 top-4
+                  rounded-full bg-primary/10
+                  px-2 py-0.5
+                  text-[10px] font-medium
+                  text-primary
+                "
+              >
+                Recommended
+              </span>
+
+              <div className="flex items-start gap-4">
+                <div className="text-xl opacity-80">🧠</div>
+                <div>
+                  <p className="text-sm font-semibold">
+                    Incident Postmortem / RCA
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground max-w-sm">
+                    Perform structured root cause analysis for outages and
+                    reliability incidents.
+                  </p>
+
+                  <p className="mt-4 text-xs font-medium text-primary">
+                    Start RCA
+                  </p>
+                </div>
+              </div>
+            </button>
+
+            {/* Quick incident */}
+            <button
+              onClick={() => {
+                setOpenReliabilityChoice(false)
+                router.push("/incident/reliability")
+              }}
+              className="
+                w-full rounded-xl border border-border
+                bg-card p-6 text-left
+                transition hover:border-muted-foreground/40
+              "
+            >
+              <div className="flex items-start gap-4">
+                <div className="text-xl opacity-80">⚡</div>
+                <div>
+                  <p className="text-sm font-semibold">
+                    Log reliability incident
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground max-w-sm">
+                    Quickly capture incident details during or after an outage.
+                  </p>
+
+                  <p className="mt-4 text-xs font-medium text-muted-foreground">
+                    Log incident
+                  </p>
+                </div>
+              </div>
+            </button>
+
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Footer />
+    </div>
+  )
+}

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Service Agreement - Formyxa Editor</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --sidebar: #ffffff;
+            --border: #e2e8f0;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --ghost-fill: #f1f5f9;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Editor Sidebar - Matching your Screenshot */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-col: column;
+            padding: 20px;
+        }
+
+        .sidebar-header {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .nav-item {
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            background: var(--ghost-fill);
+        }
+
+        .nav-item.active {
+            background: #eff6ff;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Document Canvas */
+        .canvas {
+            flex-1: 1;
+            overflow-y: auto;
+            padding: 60px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .document {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            padding: 80px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+
+        /* Content Styling */
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #0f172a; }
+        h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-top: 2rem; }
+        
+        .ghost-field {
+            background: var(--ghost-fill);
+            border-bottom: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .clause-block {
+            margin-bottom: 24px;
+            padding: 16px;
+            border-left: 4px solid var(--border);
+            background: #fafafa;
+        }
+
+        .revenue-protection {
+            border-left-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        /* AI Health Score Mockup */
+        .health-score {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            width: 200px;
+        }
+
+        .score-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 4px solid #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">Document Outline</div>
+        <div class="nav-item">1. The Parties</div>
+        <div class="nav-item active">2. Scope of Services</div>
+        <div class="nav-item">3. Fees & Payment</div>
+        <div class="nav-item">4. IP Ownership</div>
+        <div class="nav-item">5. Termination</div>
+        <div class="nav-item">6. Governing Law</div>
+    </aside>
+
+    <main class="canvas">
+        <article class="document">
+            <header>
+                <p style="text-transform: uppercase; color: var(--primary); font-weight: 700; margin-bottom: 0;">Master Service Agreement</p>
+                <h1>Professional Services Shield</h1>
+                <p>Effective Date: <span class="ghost-field">Select Date</span></p>
+            </header>
+
+            <section>
+                <h2>1. The Parties</h2>
+                <p>This Agreement is between <strong><span class="ghost-field">Your Agency Name</span></strong> ("Service Provider") and <strong><span class="ghost-field">Client Legal Name</span></strong> ("Client").</p>
+            </section>
+
+            <section>
+                <h2>2. Scope of Services (Anti-Scope Creep)</h2>
+                <div class="clause-block">
+                    <strong>Included Services:</strong>
+                    <p>Provider shall perform the following: <span class="ghost-field">Enter specific deliverables here...</span></p>
+                    <hr style="border: 0; border-top: 1px solid var(--border); margin: 15px 0;">
+                    <strong>Exclusions (The Revenue Guard):</strong>
+                    <p>Anything not explicitly listed above is considered "Out of Scope." Specifically, this agreement does NOT include: <span class="ghost-field">e.g., 24/7 Support, Unlimited Revisions</span>.</p>
+                </div>
+            </section>
+
+            <section>
+                <h2>3. Compensation & Late Fees</h2>
+                <div class="clause-block revenue-protection">
+                    <p><strong>Total Project Fee:</strong> $<span class="ghost-field">0,000.00</span></p>
+                    <p><strong>Payment Terms:</strong> Client agrees to pay all invoices within <span class="ghost-field">15</span> days of receipt.</p>
+                    <p><strong>Late Penalty:</strong> Any payment not received by the due date shall accrue interest at a rate of <strong><span class="ghost-field">1.5%</span> per month</strong>.</p>
+                </div>
+            </section>
+
+            <section>
+                <h2>4. Intellectual Property (Ownership Leverage)</h2>
+                <p>The parties agree that all work product created under this agreement shall be owned by the Client <strong>ONLY AFTER</strong> final payment has been received by the Service Provider in full. Until such time, the Service Provider retains all rights to the work product.</p>
+            </section>
+
+            <section>
+                <h2>5. Termination & Kill-Fee</h2>
+                <p>Either party may terminate this Agreement with <span class="ghost-field">14 days</span> written notice. In the event of termination by the Client, the Client shall pay a <strong>"Kill-Fee"</strong> equal to the percentage of work completed plus a <span class="ghost-field">10%</span> administrative fee.</p>
+            </section>
+
+            <section style="margin-top: 50px; display: flex; gap: 40px;">
+                <div style="flex: 1; border-top: 1px solid black; padding-top: 10px;">
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">Service Provider Signature</p>
+                </div>
+                <div style="flex: 1; border-top: 1px solid black; padding-top: 10px;">
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">Client Signature</p>
+                </div>
+            </section>
+        </article>
+    </main>
+
+    <div class="health-score">
+        <div class="score-circle">92</div>
+        <p style="font-weight: 600; margin: 0;">AI Health Score</p>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Strong protection against late payments detected.</p>
+        <button style="width: 100%; margin-top: 10px; padding: 8px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer;">Run AI Review</button>
+    </div>
+
+</body>
+</html>

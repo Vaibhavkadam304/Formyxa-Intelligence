@@ -1,0 +1,433 @@
+"use client"
+
+import { useRouter } from "next/navigation"
+import { HelpCircle, ShieldCheck, Zap, CheckCircle2, Award } from "lucide-react"
+
+export default function FormyxaSOWEditor() {
+  const router = useRouter()
+
+  const handleOpenEditor = async () => {
+    const res = await fetch("/api/documents", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Anti-Scope Creep SOW",
+        templateSlug: "anti-scope-creep-sow-core",
+        preset: "standard",
+      }),
+    })
+
+    const data = await res.json()
+    if (data?.id) router.push(`/builder/${data.id}`)
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted text-foreground font-sans">
+
+      {/* ── Pulsating animation style ────────────────────────────── */}
+      <style>{`
+        @keyframes pulse-blue {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+        .field-pulse {
+          animation: pulse-blue 2s ease-in-out infinite;
+        }
+      `}</style>
+
+      {/* ── Header ─────────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-50 bg-card shadow-sm border-b border-border px-6 h-16 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="h-8 w-8 bg-primary text-primary-foreground rounded-md flex items-center justify-center font-bold">
+            F
+          </div>
+          <div>
+            <h1 className="text-sm font-semibold tracking-tight text-foreground">
+              Statement of Work Template
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              Professional Implementation Format
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={handleOpenEditor}
+          className="bg-primary hover:bg-primary/90 text-primary-foreground px-5 py-2 rounded-md text-sm font-medium transition-colors"
+        >
+          Open in Editor
+        </button>
+      </header>
+
+      {/* ── High-Impact Preview Banner ──────────────────────────────── */}
+      <div className="bg-primary text-primary-foreground px-6 py-4">
+        <div className="max-w-[1200px] mx-auto">
+          <p className="text-center font-semibold text-sm tracking-wide mb-2">
+            Professional Implementation Format — Optimized for CRM &amp; Tech Projects
+          </p>
+          <div className="flex flex-wrap justify-center gap-6 text-xs">
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck className="h-4 w-4" />
+              <strong>Risk-Mitigated:</strong> Includes standard liability &amp; termination clauses
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Zap className="h-4 w-4" />
+              <strong>AI-Ready:</strong> Optimized for automatic field filling
+            </span>
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="h-4 w-4" />
+              <strong>12 Sections:</strong> Enterprise-grade SOW structure
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Main ───────────────────────────────────────────────────── */}
+      <main className="flex flex-col items-start py-16 px-4 max-w-[1200px] mx-auto lg:flex-row lg:items-start lg:gap-8">
+
+        {/* ── Document Paper ─────────────────────────────────────── */}
+        <div className="
+          w-full
+          bg-card
+          border border-border
+          rounded-md
+          shadow-[0_20px_60px_rgba(15,23,42,0.12)]
+          dark:shadow-[0_20px_60px_rgba(0,0,0,0.5)]
+          relative
+        ">
+          {/* ── Formyxa Certified Badge ─────────────────────────── */}
+          <div className="absolute -top-3 -right-3 z-10 flex items-center gap-1.5 bg-green-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-lg uppercase tracking-wider">
+            <Award className="h-3 w-3" />
+            Formyxa Certified
+          </div>
+
+          <div className="px-16 py-16 space-y-10 text-foreground">
+
+            {/* Title */}
+            <div className="border-b border-border pb-8">
+              <h2 className="text-3xl font-semibold tracking-wide text-center text-foreground">
+                STATEMENT OF WORK
+              </h2>
+
+              {/* Social Proof */}
+              <p className="text-center text-xs text-muted-foreground mt-3">
+                Used by <strong>500+ service providers</strong> for CRM Implementations
+              </p>
+              <div className="mt-4 h-px bg-border w-24 mx-auto" />
+            </div>
+
+            {/* Info Table */}
+            <section>
+              <div className="border border-border rounded-md overflow-hidden">
+                <table className="w-full text-sm text-left">
+                  <tbody>
+                    <tr className="border-b border-border">
+                      <td className="px-4 py-3 font-semibold text-foreground w-1/4">Client</td>
+                      <td className="px-4 py-3 text-primary italic underline decoration-dashed field-pulse w-1/4">Client Name</td>
+                      <td className="px-4 py-3 font-semibold text-foreground w-1/4">Effective Date</td>
+                      <td className="px-4 py-3 text-primary italic underline decoration-dashed field-pulse w-1/4">Effective Date</td>
+                    </tr>
+                    <tr className="border-b border-border">
+                      <td className="px-4 py-3 font-semibold text-foreground">Service Provider</td>
+                      <td className="px-4 py-3 text-primary italic underline decoration-dashed field-pulse">Service Provider Name</td>
+                      <td className="px-4 py-3 font-semibold text-foreground">Project Lead</td>
+                      <td className="px-4 py-3 text-primary italic underline decoration-dashed field-pulse">Project Lead Name</td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 font-semibold text-foreground">Project Name</td>
+                      <td className="px-4 py-3 text-primary italic underline decoration-dashed field-pulse" colSpan={3}>Project Name</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            {/* 1. Project Purpose */}
+            <section>
+              <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+                <span className="w-1 h-6 bg-primary rounded-full inline-block" />
+                1. Project Purpose
+              </h3>
+              <p className="text-sm leading-relaxed text-muted-foreground italic">
+                Describe the purpose and scope of the Project Purpose section...<br />
+                Include all relevant parties, obligations, and key terms...<br />
+                Specify any timelines, conditions, or exceptions that apply.
+              </p>
+            </section>
+
+            {/* 2. Scope of Services */}
+            <section>
+              <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+                <span className="w-1 h-6 bg-primary rounded-full inline-block" />
+                2. Scope of Services
+              </h3>
+              <p className="text-sm leading-relaxed text-foreground mb-3">
+                The Service Provider will perform the following services:
+              </p>
+              <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground pl-2">
+                <li className="field-pulse text-primary">Enter service item 1</li>
+                <li className="field-pulse text-primary">Enter service item 2</li>
+                <li className="field-pulse text-primary">Enter service item 3</li>
+              </ul>
+            </section>
+
+            {/* 3. Schedule & Milestones */}
+            <section>
+              <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+                <span className="w-1 h-6 bg-primary rounded-full inline-block" />
+                3. Schedule &amp; Milestones
+              </h3>
+              <div className="border border-border rounded-lg overflow-hidden">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-foreground text-background">
+                    <tr>
+                      <th className="px-4 py-2 font-semibold">Milestone</th>
+                      <th className="px-4 py-2 font-semibold">Deliverable</th>
+                      <th className="px-4 py-2 font-semibold">Timeline</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-t border-border">
+                      <td className="px-4 py-3 text-foreground">M1</td>
+                      <td className="px-4 py-3 text-primary italic field-pulse"></td>
+                      <td className="px-4 py-3 text-primary italic field-pulse"></td>
+                    </tr>
+                    <tr className="border-t border-border">
+                      <td className="px-4 py-3 text-foreground">M2</td>
+                      <td className="px-4 py-3 text-primary italic field-pulse"></td>
+                      <td className="px-4 py-3 text-primary italic field-pulse"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            {/* 4. Payment Terms */}
+            <section>
+              <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+                <span className="w-1 h-6 bg-primary rounded-full inline-block" />
+                4. Payment Terms
+              </h3>
+              <p className="text-sm leading-relaxed text-foreground">
+                The Client agrees to pay a total project fee of{" "}
+                <span className="text-primary italic underline decoration-dashed field-pulse">Project Fee</span>
+                , payable as follows: 50% upfront and 50% upon final delivery. All invoices are due within 15 days of issuance. Late payments shall incur interest at 1.5% per month.
+              </p>
+            </section>
+
+            {/* 5. Exclusions */}
+            <section>
+              <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+                <span className="w-1 h-6 bg-primary rounded-full inline-block" />
+                5. Exclusions
+              </h3>
+              <p className="text-sm leading-relaxed text-foreground mb-3">
+                The following items are explicitly out of scope unless agreed in writing:
+              </p>
+              <ul className="list-disc list-inside space-y-2 text-sm text-foreground pl-2">
+                <li>Additional features or functionality not described in Section 2.</li>
+                <li>Third-party software, API, or licensing fees.</li>
+                <li>Ongoing maintenance, support, or hosting beyond the agreed timeline.</li>
+              </ul>
+            </section>
+
+            {/* 6. Revision Policy */}
+            <section>
+              <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+                <span className="w-1 h-6 bg-primary rounded-full inline-block" />
+                6. Revision Policy
+              </h3>
+              <p className="text-sm leading-relaxed text-foreground">
+                This project includes up to <u>2</u> rounds of revisions per deliverable. A revision is defined as minor modifications and does not include new features or structural changes. Additional revisions will be billed at the standard hourly rate.
+              </p>
+            </section>
+
+            {/* 7. Change Management */}
+            <section>
+              <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+                <span className="w-1 h-6 bg-primary rounded-full inline-block" />
+                7. Change Management
+              </h3>
+              <p className="text-sm leading-relaxed text-foreground">
+                Any work outside the agreed Scope of Services must be submitted as a written Change Request. The Service Provider will assess the cost and timeline impact before proceeding. No additional work will begin without written approval from both parties. Out-of-scope work may be billed at an hourly rate of{" "}
+                <span className="text-primary italic underline decoration-dashed field-pulse">Hourly Rate</span>
+                {" "}per hour unless otherwise agreed in writing.
+              </p>
+            </section>
+
+            {/* 8. Intellectual Property */}
+            <section>
+              <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+                <span className="w-1 h-6 bg-primary rounded-full inline-block" />
+                8. Intellectual Property
+              </h3>
+              <p className="text-sm leading-relaxed text-foreground">
+                Ownership of all final deliverables transfers to the Client upon receipt of full payment. The Service Provider retains ownership of pre-existing tools, frameworks, methodologies, and proprietary systems used to produce the deliverables.
+              </p>
+            </section>
+
+            {/* 9. Termination */}
+            <section>
+              <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+                <span className="w-1 h-6 bg-primary rounded-full inline-block" />
+                9. Termination
+              </h3>
+              <p className="text-sm leading-relaxed text-foreground">
+                Either party may terminate this Agreement with <u>30</u> days' written notice. The Client shall remain responsible for payment of all completed work and approved milestones up to the effective date of termination.
+              </p>
+            </section>
+
+            {/* 10. Governing Law & Jurisdiction */}
+            <section>
+              <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+                <span className="w-1 h-6 bg-primary rounded-full inline-block" />
+                10. Governing Law &amp; Jurisdiction
+              </h3>
+              <p className="text-sm leading-relaxed text-foreground">
+                This Agreement shall be governed by the laws of{" "}
+                <span className="text-primary italic underline decoration-dashed field-pulse">Governing Jurisdiction</span>
+                . Any disputes shall be resolved through arbitration.
+              </p>
+              <p className="text-sm leading-relaxed text-muted-foreground italic mt-2">
+                Any disputes shall first be escalated to senior management for good-faith resolution...
+              </p>
+            </section>
+
+            {/* 11. Acceptance */}
+            <section>
+              <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
+                <span className="w-1 h-6 bg-primary rounded-full inline-block" />
+                11. Acceptance
+              </h3>
+              <p className="text-sm leading-relaxed text-foreground">
+                By signing below, the parties acknowledge that they have read, understood, and agree to all terms and conditions set forth in this Statement of Work. This document becomes legally binding upon execution by both parties.
+              </p>
+              <p className="text-sm leading-relaxed text-muted-foreground italic mt-2">
+                Include all relevant parties, obligations, and key terms...
+              </p>
+
+              <div className="mt-8 grid grid-cols-2 gap-12">
+                {/* Client */}
+                <div>
+                  <p className="text-xs font-bold tracking-widest text-muted-foreground uppercase mb-6">CLIENT</p>
+                  <div className="space-y-4">
+                    <div className="border-b border-border pb-1">
+                      <p className="text-xs text-primary italic field-pulse">Signature</p>
+                    </div>
+                    <div className="border-b border-border pb-1">
+                      <p className="text-xs text-primary italic field-pulse">Name</p>
+                    </div>
+                    <div className="border-b border-border pb-1">
+                      <p className="text-xs text-primary italic field-pulse">Title / Designation</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Date: <span className="text-primary field-pulse">dd-mm-yyyy</span></p>
+                  </div>
+                </div>
+
+                {/* Service Provider */}
+                <div>
+                  <p className="text-xs font-bold tracking-widest text-muted-foreground uppercase mb-6">SERVICE PROVIDER</p>
+                  <div className="space-y-4">
+                    <div className="border-b border-border pb-1">
+                      <p className="text-xs text-primary italic field-pulse">Signature</p>
+                    </div>
+                    <div className="border-b border-border pb-1">
+                      <p className="text-xs text-primary italic field-pulse">Name</p>
+                    </div>
+                    <div className="border-b border-border pb-1">
+                      <p className="text-xs text-primary italic field-pulse">Title / Designation</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Date: <span className="border-b border-border px-8 inline-block" /></p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+          </div>
+        </div>
+
+        {/* ── Right Sidebar: Why This Template? ──────────────────── */}
+        <aside className="w-full lg:w-72 shrink-0 mt-8 lg:mt-0">
+          <div className="bg-card border border-border rounded-md shadow-sm p-5 space-y-5 sticky top-24">
+            <h4 className="text-sm font-bold text-foreground tracking-tight">Why This Template?</h4>
+
+            <div className="space-y-4">
+              <div className="flex gap-3">
+                <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-foreground">Structure Breakdown</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    This template includes <strong>11 essential sections</strong> required for enterprise-grade SOWs.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-foreground">Risk Mitigation</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Pre-configured with <strong>anti-scope creep protections</strong> and liability clauses.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+                  <Zap className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-foreground">AI-Ready Fields</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Blue fields are ready for <strong>automatic AI filling</strong> — finish in minutes.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+                  <Award className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-foreground">Industry Standard</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Formyxa Certified — vetted by legal and operations experts.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-border pt-4">
+              <p className="text-[11px] text-muted-foreground text-center">
+                🕐 You are <strong>~2 minutes</strong> away from a finished contract. Just fill the blue fields.
+              </p>
+            </div>
+
+            <button
+              onClick={handleOpenEditor}
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2.5 rounded-md text-sm font-medium transition-colors"
+            >
+              Open in Editor →
+            </button>
+          </div>
+        </aside>
+
+      </main>
+
+      {/* ── Floating Helper ────────────────────────────────────────── */}
+      <div className="fixed bottom-6 right-6 flex flex-col gap-3">
+        <div className="bg-card border border-border p-3 rounded-lg shadow-xl text-xs max-w-[200px] text-muted-foreground animate-bounce">
+          AI is ready to fill these blue fields!
+        </div>
+        <button className="h-12 w-12 bg-foreground text-background rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform">
+          <HelpCircle className="h-6 w-6" />
+        </button>
+      </div>
+
+    </div>
+  )
+}

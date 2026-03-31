@@ -90,6 +90,58 @@ function fillTiptapPlaceholders(
 }
 
 /**
+ * Fill structured field-based instructional blocks.
+ * Replaces paragraphs that have:
+ *   attrs: { instructional: true, field: "some_key" }
+ *
+ * If variable exists → replace text
+ * If not → keep instructional text
+ */
+function fillFieldsFromAttrs(
+  node: any,
+  variables: Record<string, string>,
+): any {
+  if (!node || typeof node !== "object") return node;
+
+  const cloned = Array.isArray(node) ? [...node] : { ...node };
+
+  // Replace instructional paragraph if field mapping exists
+  if (
+    cloned.type === "paragraph" &&
+    cloned.attrs?.field
+  ) {
+    const key = cloned.attrs.field;
+    const value = variables?.[key];
+
+    if (value && String(value).trim()) {
+      cloned.content = [{ type: "text", text: String(value) }];
+
+      // 🔥 Remove BOTH instructional AND field attributes when filled
+      delete cloned.attrs.instructional;
+      delete cloned.attrs.field;
+
+      // Clean up empty attrs
+      if (Object.keys(cloned.attrs).length === 0) {
+        delete cloned.attrs;
+      }
+    }
+    // 🔥 If no value, keep as-is and return early (don't recurse)
+    return cloned;
+  }
+
+  // Recurse children
+  if (Array.isArray(cloned.content)) {
+    cloned.content = cloned.content.map((child: any) =>
+      fillFieldsFromAttrs(child, variables),
+    );
+  }
+
+  return cloned;
+}
+
+
+
+/**
  * Post-process LLM variables so it can't "invent" values:
  * - if value equals the schema label → treat as empty
  * - if value looks like a placeholder ({{...}} or {...}) → empty
@@ -292,11 +344,9 @@ export async function POST(req: NextRequest) {
         company_phone: variables.company_phone ?? "",
         company_email: variables.company_email ?? "",
       };
-
-      // 3) Start from base template JSON and fill all {{placeholders}}
       let baseDoc: any = template.contentJsonTemplate;
 
-      // Parse if string
+      // Parse JSON string first
       if (typeof baseDoc === "string") {
         try {
           baseDoc = JSON.parse(baseDoc);
@@ -305,19 +355,25 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // 🔥 APPLY PRESET HERE (CRITICAL)
-      if (baseDoc && typeof baseDoc === "object") {
-        baseDoc =
-          baseDoc[preset] ??
-          baseDoc.corporate ??
-          baseDoc.custom ??
-          baseDoc;
+      if (!baseDoc || typeof baseDoc !== "object") {
+        console.error("❌ Template JSON invalid");
+        baseDoc = { type: "doc", content: [] };
+      } else {
+        // If template supports presets
+        if (baseDoc[preset]) {
+          baseDoc = baseDoc[preset];
+        } else {
+          // Automatically pick first available preset
+          const firstPreset = Object.values(baseDoc)[0];
+          baseDoc = firstPreset;
+        }
       }
 
       if (!baseDoc || baseDoc.type !== "doc") {
-        console.error("❌ Invalid template JSON after preset resolution");
+        console.error("❌ Resolved template is not a valid TipTap doc");
         baseDoc = { type: "doc", content: [] };
       }
+
 
       if (typeof baseDoc === "string") {
         try {
@@ -331,11 +387,23 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      const filledDoc = fillTiptapPlaceholders(
-        baseDoc,
-        { ...brandVars, ...variables },
-        placeholderSchema
-      );
+      let filledDoc;
+
+      if (placeholderSchema) {
+        // Old templates using {{placeholders}}
+        filledDoc = fillTiptapPlaceholders(
+          baseDoc,
+          { ...brandVars, ...variables },
+          placeholderSchema
+        );
+      } else {
+        // New structured templates using attrs.field
+        filledDoc = fillFieldsFromAttrs(
+          baseDoc,
+          { ...brandVars, ...variables }
+        );
+      }
+
 
       // 4) Save document with filled JSON
       const doc = await prisma.document.create({

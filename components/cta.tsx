@@ -5,13 +5,7 @@ export default function CTA() {
   return (
     <section
       id="pricing"
-      className="
-        py-20 md:py-28
-        bg-gradient-to-b
-        from-background
-        via-muted/40
-        to-background
-      "
+      className="py-20 md:py-28 bg-background"
     >
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <div
@@ -38,18 +32,17 @@ export default function CTA() {
             "
           >
             <span className="h-2 w-2 rounded-full bg-primary" />
-            Used for official company documentation
+            Built for agencies and freelancers
           </div>
 
           {/* Headline */}
           <h2 className="mt-6 text-3xl md:text-4xl font-semibold tracking-tight text-foreground text-balance">
-            Ready to create organization-ready documents?
+            Ready to lock in your next agreement?
           </h2>
 
           {/* Supporting copy */}
           <p className="mt-4 max-w-xl mx-auto text-base md:text-lg text-muted-foreground">
-            Start from approved structure, fill required fields,
-            and export clean documents your team can safely reuse.
+            Create structured Statements of Work and service agreements with built-in scope and payment guardrails — ready to export and sign.
           </p>
 
           {/* CTA */}
@@ -64,15 +57,15 @@ export default function CTA() {
                 transition-colors
               "
             >
-              <Link href="/choose">Create your first document</Link>
+              <Link href="/choose">Create Protected SOW</Link>
             </Button>
           </div>
 
           {/* Reassurance row */}
           <div className="mt-5 flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
             <span>✓ No credit card required</span>
-            <span>✓ Export-ready DOCX</span>
-            <span>✓ Built for teams</span>
+            <span>✓ Export-ready DOCX & PDF</span>
+            <span>✓ Structured guardrails built in</span>
           </div>
         </div>
       </div>

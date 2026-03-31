@@ -26,6 +26,8 @@ model Template {
   contentJsonTemplate Json?
   supportedPresets    String[] @default(["corporate"])
 
+  aiConfig            Json?    // 👈 ADD THIS LINE
+
   documents          Document[]
 }
 
