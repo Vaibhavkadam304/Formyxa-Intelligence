@@ -1,35 +1,100 @@
 import { Node, mergeAttributes } from "@tiptap/core";
-import { ReactNodeViewRenderer } from "@tiptap/react";
-import { CoverMetadataBlockView } from "./CoverMetadataBlockView";
 
 export const CoverMetadataBlock = Node.create({
   name: "coverMetadata",
   group: "block",
-  atom: true,       // all data lives in attrs — no inner content
+  atom: true,
   selectable: true,
-  draggable: true,
+  draggable: false,
 
   addAttributes() {
     return {
-      provider_company: { default: null },
-      client_company:   { default: null },
-      project_name:     { default: null },
-      date:             { default: null },
+      provider_company: { default: "" },
+      client_company:   { default: "" },
+      project_name:     { default: "" },
+      date:             { default: "" },
     };
   },
 
   parseHTML() {
-    return [{ tag: "div[data-cover-metadata]" }];
+    return [{ tag: "div[data-type='cover-metadata']" }];
   },
 
   renderHTML({ HTMLAttributes }) {
     return [
       "div",
-      mergeAttributes(HTMLAttributes, { "data-cover-metadata": "true" }),
+      mergeAttributes(HTMLAttributes, { "data-type": "cover-metadata" }),
     ];
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(CoverMetadataBlockView);
+    return ({ node }) => {
+      const dom = document.createElement("div");
+      dom.setAttribute("data-type", "cover-metadata");
+      dom.style.cssText = `
+        margin: 24px 0 32px;
+        padding: 20px 24px;
+        border: 1px solid rgba(99,102,241,0.18);
+        border-radius: 10px;
+        background: rgba(99,102,241,0.04);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px 32px;
+        font-family: inherit;
+      `;
+
+      function getPlaceholder(key: string) {
+        const map: Record<string, string> = {
+          provider_company: "Your company…",
+          client_company:   "Client company…",
+          project_name:     "Project name…",
+          date:             "Effective date…",
+        };
+        return map[key] ?? "—";
+      }
+
+      function makeRow(label: string, value: string, attrKey: string) {
+        const wrap = document.createElement("div");
+        wrap.style.cssText = "display:flex;flex-direction:column;gap:2px;";
+
+        const lbl = document.createElement("span");
+        lbl.style.cssText =
+          "font-size:10px;font-weight:700;text-transform:uppercase;" +
+          "letter-spacing:.08em;color:#94a3b8;";
+        lbl.textContent = label;
+
+        const val = document.createElement("span");
+        val.style.cssText =
+          "font-size:13px;color:" +
+          (value ? "#1e293b" : "#cbd5e1") +
+          ";font-style:" + (value ? "normal" : "italic") + ";";
+        val.textContent = value || getPlaceholder(attrKey);
+
+        wrap.appendChild(lbl);
+        wrap.appendChild(val);
+        return wrap;
+      }
+
+      function render() {
+        dom.innerHTML = "";
+        const { provider_company, client_company, project_name, date } = node.attrs;
+        dom.appendChild(makeRow("Prepared By",    provider_company, "provider_company"));
+        dom.appendChild(makeRow("Prepared For",   client_company,   "client_company"));
+        dom.appendChild(makeRow("Project Name",   project_name,     "project_name"));
+        dom.appendChild(makeRow("Effective Date", date,             "date"));
+      }
+
+      render();
+
+      return {
+        dom,
+        update(updatedNode: any) {
+          if (updatedNode.type.name !== "coverMetadata") return false;
+          (node as any) = updatedNode;
+          render();
+          return true;
+        },
+      };
+    };
   },
 });
