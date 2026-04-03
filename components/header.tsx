@@ -77,7 +77,7 @@ export default function Header() {
 
             {/* Primary CTA */}
             <Link
-              href="/org/hr/offer-letter"
+              href="/templates/anti-scope-creep-sow"
               className="
                 inline-flex items-center justify-center
                 rounded-lg px-4 py-2

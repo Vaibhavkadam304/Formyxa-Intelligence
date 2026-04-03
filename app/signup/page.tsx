@@ -10,267 +10,366 @@ export default function SignUpPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: hook up to your auth backend later
   }
 
   return (
     <main
-      className="
-        min-h-screen
-        bg-[radial-gradient(circle_at_top,_rgba(129,140,248,0.18),_transparent_60%)]
-        from-white to-slate-50
-        flex items-center justify-center
-        px-4
-      "
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #0a0a12 0%, #0f0f1e 50%, #0d0a1a 100%)",
+        fontFamily: "'DM Sans', system-ui, sans-serif",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "32px 16px",
+        position: "relative",
+        overflow: "hidden",
+      }}
     >
-      <div className="mx-auto grid w-full max-w-5xl gap-10 lg:grid-cols-[1.1fr_minmax(0,1fr)] items-center">
-        {/* LEFT: Why Formatly / Formyxa */}
-        <section className="hidden lg:flex flex-col gap-6 pr-4">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=Sora:wght@300;400;500;600;700&display=swap');
+        * { box-sizing: border-box; }
+
+        .glow-orb {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(90px);
+          pointer-events: none;
+        }
+
+        .noise-overlay {
+          position: fixed;
+          inset: 0;
+          opacity: 0.025;
+          pointer-events: none;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+          background-size: 128px;
+          z-index: 0;
+        }
+
+        .input-field {
+          width: 100%;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(139,120,255,0.2);
+          border-radius: 14px;
+          padding: 11px 16px;
+          color: #f0eeff;
+          font-size: 14px;
+          font-family: 'DM Sans', sans-serif;
+          outline: none;
+          transition: all 0.2s ease;
+        }
+        .input-field::placeholder { color: rgba(160,150,210,0.45); }
+        .input-field:focus {
+          border-color: rgba(139,120,255,0.6);
+          background: rgba(139,120,255,0.08);
+          box-shadow: 0 0 0 3px rgba(139,120,255,0.12), 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .label-text {
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: rgba(180,170,230,0.7);
+          margin-bottom: 8px;
+          display: block;
+        }
+
+        .btn-primary {
+          width: 100%;
+          padding: 13px 24px;
+          border-radius: 100px;
+          border: none;
+          cursor: pointer;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 14px;
+          font-weight: 600;
+          color: #fff;
+          background: linear-gradient(135deg, #6d5bff 0%, #8b5cf6 50%, #a855f7 100%);
+          box-shadow: 0 8px 32px rgba(109,91,255,0.45), 0 1px 0 rgba(255,255,255,0.1) inset;
+          transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 14px 40px rgba(109,91,255,0.55), 0 1px 0 rgba(255,255,255,0.12) inset;
+        }
+
+        .btn-google {
+          width: 100%;
+          padding: 12px 24px;
+          border-radius: 100px;
+          border: 1px solid rgba(139,120,255,0.2);
+          cursor: pointer;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 14px;
+          font-weight: 500;
+          color: rgba(220,215,255,0.85);
+          background: rgba(255,255,255,0.04);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          transition: all 0.2s ease;
+        }
+        .btn-google:hover {
+          background: rgba(255,255,255,0.07);
+          border-color: rgba(139,120,255,0.35);
+        }
+
+        .divider-line {
+          flex: 1;
+          height: 1px;
+          background: linear-gradient(to right, transparent, rgba(139,120,255,0.2), transparent);
+        }
+
+        .badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: rgba(109,91,255,0.15);
+          border: 1px solid rgba(139,120,255,0.25);
+          border-radius: 100px;
+          padding: 4px 12px;
+          font-size: 11px;
+          font-weight: 500;
+          color: rgba(180,165,255,0.9);
+          letter-spacing: 0.02em;
+        }
+        .badge-dot {
+          width: 5px; height: 5px;
+          border-radius: 50%;
+          background: #8b78ff;
+          box-shadow: 0 0 6px rgba(139,120,255,0.8);
+        }
+
+        .mockup-card {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(139,120,255,0.15);
+          border-radius: 20px;
+          padding: 16px;
+          backdrop-filter: blur(12px);
+        }
+
+        .mockup-pane {
+          border-radius: 12px;
+          padding: 12px;
+          font-size: 10px;
+          line-height: 1.5;
+        }
+
+        .bullet-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-size: 13px;
+          color: rgba(190,180,240,0.75);
+        }
+        .bullet-check {
+          width: 20px; height: 20px;
+          border-radius: 50%;
+          background: rgba(109,91,255,0.2);
+          border: 1px solid rgba(139,120,255,0.3);
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+          font-size: 10px;
+        }
+
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .animate-card { animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+        .animate-left { animation: fadeUp 0.5s 0.1s cubic-bezier(0.22,1,0.36,1) both; }
+
+        @media (max-width: 900px) {
+          .left-panel { display: none !important; }
+        }
+      `}</style>
+
+      <div className="noise-overlay" />
+
+      {/* Ambient orbs */}
+      <div className="glow-orb" style={{ width: 600, height: 600, top: -150, left: -100, background: "rgba(100,80,255,0.15)" }} />
+      <div className="glow-orb" style={{ width: 400, height: 400, bottom: -80, right: -60, background: "rgba(168,85,247,0.12)" }} />
+      <div className="glow-orb" style={{ width: 200, height: 200, top: "30%", left: "45%", background: "rgba(59,130,246,0.07)" }} />
+
+      <div style={{ width: "100%", maxWidth: 940, display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 40, alignItems: "center", position: "relative", zIndex: 1 }}>
+
+        {/* LEFT PANEL */}
+        <div className="animate-left left-panel" style={{ display: "flex", flexDirection: "column", gap: 28, paddingRight: 8 }}>
+
           {/* Logo */}
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-500 text-xs font-semibold text-white">
-              F
-            </div>
-            <span className="text-sm font-semibold text-slate-800">
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: "50%",
+              background: "linear-gradient(135deg, #6d5bff, #a855f7)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 15, fontWeight: 700, color: "#fff",
+              fontFamily: "'Sora', sans-serif",
+              boxShadow: "0 4px 16px rgba(109,91,255,0.5)",
+            }}>F</div>
+            <span style={{ fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 600, color: "#e8e4ff", letterSpacing: "-0.01em" }}>
               Formyxa
             </span>
           </div>
 
-          <div className="space-y-3">
-            <p className="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-indigo-700">
-              New here? · Create your account
-            </p>
-
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
-              Sign up once, reuse letters for every visa, refund & dispute.
+          {/* Heading */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <span className="badge" style={{ alignSelf: "flex-start" }}>
+              <span className="badge-dot" />
+              New here · Create your account
+            </span>
+            <h1 style={{
+              fontFamily: "'Sora', sans-serif",
+              fontSize: 30, fontWeight: 700,
+              color: "#eeeaff", margin: 0,
+              lineHeight: 1.25, letterSpacing: "-0.03em",
+            }}>
+              Sign up once, reuse letters for every visa, refund &amp; dispute.
             </h1>
-
-            <p className="text-sm text-slate-600 max-w-md">
-              Save your best letters as templates, duplicate them for similar
-              cases, and export clean DOCX any time you need a fresh copy.
+            <p style={{ fontSize: 13, color: "rgba(170,160,220,0.65)", margin: 0, lineHeight: 1.7, maxWidth: 360 }}>
+              Save your best letters as templates, duplicate for similar cases, and export clean DOCX any time.
             </p>
           </div>
 
-          {/* Tiny editor mockup */}
-          <div
-            className="
-              relative mt-2 rounded-3xl border border-indigo-100 bg-white/80
-              shadow-[0_18px_60px_rgba(15,23,42,0.18)] backdrop-blur-sm
-              p-4 max-w-md
-            "
-          >
-            <div className="mb-3 flex items-center justify-between text-[11px] text-slate-500">
-              <span className="inline-flex items-center gap-1">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
+          {/* Mockup */}
+          <div className="mockup-card">
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "rgba(160,150,210,0.6)" }}>
+                <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#34d399", display: "inline-block" }} />
                 Formyxa editor
               </span>
-              <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-medium text-indigo-600">
+              <span style={{
+                background: "rgba(109,91,255,0.2)", border: "1px solid rgba(139,120,255,0.3)",
+                borderRadius: 100, padding: "2px 10px", fontSize: 10, color: "rgba(180,165,255,0.9)", fontWeight: 500,
+              }}>
                 Export as DOCX
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-[10px] leading-snug">
-              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3 text-slate-500">
-                <p className="mb-1 text-[10px] font-semibold text-slate-600">
-                  Raw story
-                </p>
-                <p className="line-clamp-4">
-                  I booked a 12-month gym membership but the gym closed after 2
-                  months. I&apos;d like to request a full refund…
-                </p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              <div className="mockup-pane" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", color: "rgba(160,150,210,0.7)" }}>
+                <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(180,170,230,0.8)", marginBottom: 6 }}>Raw story</p>
+                <p style={{ margin: 0 }}>I booked a 12-month gym membership but the gym closed after 2 months. I'd like to request a full refund…</p>
               </div>
-              <div className="rounded-2xl border border-indigo-100 bg-gradient-to-b from-indigo-50 to-violet-50 p-3 text-slate-700">
-                <p className="mb-1 text-[10px] font-semibold">
-                  Refund request letter
-                </p>
-                <p className="line-clamp-4">
-                  I am writing to request a refund of the membership fees
-                  paid… The gym ceased operations after only two months…
-                </p>
+              <div className="mockup-pane" style={{ background: "linear-gradient(135deg, rgba(109,91,255,0.12), rgba(168,85,247,0.1))", border: "1px solid rgba(139,120,255,0.2)", color: "rgba(210,205,240,0.85)" }}>
+                <p style={{ fontSize: 10, fontWeight: 600, color: "rgba(200,185,255,0.95)", marginBottom: 6 }}>Refund request letter</p>
+                <p style={{ margin: 0 }}>I am writing to request a refund of the membership fees paid… The gym ceased operations after only two months…</p>
               </div>
             </div>
 
-            <div className="mt-3 flex items-center justify-between text-[10px] text-slate-500">
-              <span className="inline-flex items-center gap-1">
-                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-[11px] font-semibold text-white">
-                  AI
-                </span>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 12, fontSize: 10 }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 6, color: "rgba(150,140,200,0.6)" }}>
+                <span style={{
+                  display: "inline-flex", width: 18, height: 18,
+                  borderRadius: "50%", background: "linear-gradient(135deg,#6d5bff,#a855f7)",
+                  alignItems: "center", justifyContent: "center",
+                  fontSize: 9, fontWeight: 700, color: "#fff",
+                }}>AI</span>
                 Auto-structured with the right tone &amp; format.
               </span>
-              <span className="font-medium text-indigo-600">
-                1 click → ready to send
-              </span>
+              <span style={{ color: "rgba(139,120,255,0.9)", fontWeight: 600 }}>1 click → ready</span>
             </div>
           </div>
 
-          {/* bullets */}
-          <ul className="mt-4 space-y-2 text-sm text-slate-600">
-            <li>✅ Save unlimited letters in one place</li>
-            <li>✅ Duplicate for similar visa or refund cases</li>
-            <li>✅ Export to DOCX whenever you need a copy</li>
-          </ul>
-        </section>
+          {/* Bullets */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {["Save unlimited letters in one place", "Duplicate for similar visa or refund cases", "Export to DOCX whenever you need a copy"].map((text) => (
+              <div key={text} className="bullet-item">
+                <span className="bullet-check">✓</span>
+                {text}
+              </div>
+            ))}
+          </div>
+        </div>
 
-        {/* RIGHT: Sign up card */}
-        <section
-          className="
-            relative
-            rounded-3xl border border-slate-100 bg-white/90
-            shadow-[0_22px_70px_rgba(15,23,42,0.18)]
-            px-6 py-8 sm:px-8 sm:py-10
-            backdrop-blur-md
-          "
+        {/* RIGHT: Sign Up Card */}
+        <div
+          className="animate-card"
+          style={{
+            background: "linear-gradient(145deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.02) 100%)",
+            border: "1px solid rgba(139,120,255,0.18)",
+            backdropFilter: "blur(24px)",
+            WebkitBackdropFilter: "blur(24px)",
+            borderRadius: 28,
+            padding: "36px 32px 32px",
+          }}
         >
-          {/* small glow behind card on mobile */}
-          <div className="pointer-events-none absolute inset-x-10 -top-6 h-10 bg-[radial-gradient(circle,_rgba(129,140,248,0.28),_transparent_60%)]" />
+          {/* Logo (mobile only via CSS would need extra work, keep for all) */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 22 }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: "50%",
+              background: "linear-gradient(135deg, #6d5bff, #a855f7)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 13, fontWeight: 700, color: "#fff",
+              fontFamily: "'Sora', sans-serif",
+              boxShadow: "0 4px 12px rgba(109,91,255,0.45)",
+            }}>F</div>
+            <span style={{ fontFamily: "'Sora', sans-serif", fontSize: 14, fontWeight: 600, color: "#e8e4ff" }}>Formyxa</span>
+          </div>
 
-          {/* brand chip */}
-          <div className="mb-4 flex items-center justify-center gap-2 sm:justify-start">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-500 text-xs font-semibold text-white">
-              F
-            </div>
-            <span className="text-sm font-semibold text-slate-800">
-              Formyxa
+          <div style={{ marginBottom: 24 }}>
+            <span className="badge" style={{ marginBottom: 12, display: "inline-flex" }}>
+              <span className="badge-dot" />
+              Create your account
             </span>
-          </div>
-
-          <div className="space-y-2 text-center sm:text-left">
-            <p className="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-medium text-indigo-700">
-              Create your Formatly account
-            </p>
-            <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900">
+            <h2 style={{
+              fontFamily: "'Sora', sans-serif",
+              fontSize: 22, fontWeight: 700,
+              color: "#eeeaff", margin: "10px 0 6px",
+              letterSpacing: "-0.025em",
+            }}>
               Sign up in under a minute.
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500">
-              Access your saved letters, templates and DOCX exports from any
-              device.
+            </h2>
+            <p style={{ fontSize: 13, color: "rgba(160,150,210,0.65)", margin: 0, lineHeight: 1.6 }}>
+              Access your saved letters, templates and DOCX exports from any device.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-            {/* Name */}
-            <div className="space-y-1.5">
-              <label
-                htmlFor="name"
-                className="text-xs font-medium text-slate-700"
-              >
-                Name
-              </label>
-              <input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
-                className="
-                  mt-1 w-full rounded-lg border border-slate-200 bg-slate-50/80
-                  px-3 py-2 text-sm text-slate-900
-                  placeholder:text-slate-400
-                  focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
-                "
-                required
-              />
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div>
+              <label htmlFor="name" className="label-text">Name</label>
+              <input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" className="input-field" required />
             </div>
-
-            {/* Email */}
-            <div className="space-y-1.5">
-              <label
-                htmlFor="email"
-                className="text-xs font-medium text-slate-700"
-              >
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="
-                  mt-1 w-full rounded-lg border border-slate-200 bg-slate-50/80
-                  px-3 py-2 text-sm text-slate-900
-                  placeholder:text-slate-400
-                  focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
-                "
-                required
-              />
+            <div>
+              <label htmlFor="email" className="label-text">Email</label>
+              <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="input-field" required />
             </div>
-
-            {/* Password */}
-            <div className="space-y-1.5">
-              <label
-                htmlFor="password"
-                className="text-xs font-medium text-slate-700"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="
-                  mt-1 w-full rounded-lg border border-slate-200 bg-slate-50/80
-                  px-3 py-2 text-sm text-slate-900
-                  placeholder:text-slate-400
-                  focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
-                "
-                required
-              />
+            <div>
+              <label htmlFor="password" className="label-text">Password</label>
+              <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="input-field" required />
             </div>
-
-            {/* Submit */}
-            <button
-              type="submit"
-              className="
-                mt-2 w-full rounded-lg
-                bg-gradient-to-r from-indigo-500 to-violet-500
-                px-4 py-2.5 text-sm font-medium text-white
-                shadow-[0_16px_38px_rgba(99,102,241,0.45)]
-                hover:from-indigo-500 hover:to-indigo-600
-                transition-colors
-              "
-            >
-              Create account
-            </button>
+            <div style={{ marginTop: 4 }}>
+              <button type="submit" className="btn-primary">Create account</button>
+            </div>
           </form>
 
-          {/* OR divider */}
-          <div className="mt-4 flex items-center gap-3">
-            <div className="h-px flex-1 bg-slate-100" />
-            <span className="text-[11px] uppercase tracking-[0.16em] text-slate-400">
-              or
-            </span>
-            <div className="h-px flex-1 bg-slate-100" />
+          {/* Divider */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "18px 0" }}>
+            <div className="divider-line" />
+            <span style={{ fontSize: 11, color: "rgba(140,130,190,0.5)", fontWeight: 500, letterSpacing: "0.06em" }}>OR</span>
+            <div className="divider-line" />
           </div>
 
-          {/* Google button */}
-          <button
-            type="button"
-            className="
-              mt-4 w-full rounded-lg border border-slate-200
-              bg-white px-4 py-2.5 text-sm
-              text-slate-700 shadow-sm
-              hover:bg-slate-50 transition-colors
-              flex items-center justify-center gap-2
-            "
-          >
-            <div className="h-4 w-4 rounded-sm bg-slate-300" />
+          {/* Google */}
+          <button className="btn-google">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
             Continue with Google
           </button>
 
-          {/* Already have account */}
-          <p className="mt-4 text-center text-xs text-slate-500">
+          <p style={{ textAlign: "center", fontSize: 12, color: "rgba(150,140,200,0.55)", marginTop: 18, marginBottom: 0 }}>
             Already have an account?{" "}
-            <Link
-              href="/signin"
-              className="font-medium text-indigo-600 hover:text-indigo-700"
-            >
+            <Link href="/signin" style={{ color: "rgba(139,120,255,0.9)", fontWeight: 600, textDecoration: "none" }}>
               Sign in
             </Link>
           </p>
-        </section>
+        </div>
       </div>
     </main>
   )
